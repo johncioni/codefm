@@ -8,11 +8,18 @@ let package = Package(
         .executableTarget(
             name: "CodeFM",
             path: "Sources",
+            resources: [.copy("../Resources/streams.json")],
             linkerSettings: [
                 .linkedFramework("WebKit"),
+                .linkedFramework("AVFoundation"),
                 .linkedFramework("ServiceManagement"),
                 .linkedFramework("Carbon"),
             ]
+        ),
+        .testTarget(
+            name: "CodeFMTests",
+            dependencies: ["CodeFM"],
+            path: "Tests/CodeFMTests"
         )
     ]
 )
