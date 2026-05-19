@@ -6,17 +6,17 @@
 
 ## 1. Summary
 
-Fork the Claude FM macOS menubar app into a new project, **Code FM**, that expands beyond a single hardcoded YouTube lo-fi stream into a curated catalog of 10–15 high-quality lo-fi and adjacent focus streams. Add a stream selector (menubar submenu + Settings window), a "Random" mode (pick once per session), and a user-configurable default startup stream. Move per-stream attribution out of the About dialog and into the new Settings window's Stream Library. The existing Claude FM project and repo remain untouched so it can ship standalone in the future.
+Fork the Code FM macOS menubar app into a new project, **Code FM**, that expands beyond a single hardcoded YouTube lo-fi stream into a curated catalog of 10–15 high-quality lo-fi and adjacent focus streams. Add a stream selector (menubar submenu + Settings window), a "Random" mode (pick once per session), and a user-configurable default startup stream. Move per-stream attribution out of the About dialog and into the new Settings window's Stream Library. The existing Code FM project and repo remain untouched so it can ship standalone in the future.
 
 The Claude mascot icon is preserved. Tagline remains "Music for thinking and building".
 
 ## 2. Project layout & coexistence
 
-| | Claude FM (untouched) | Code FM (new) |
+| | Code FM (untouched) | Code FM (new) |
 |---|---|---|
-| Repo directory | `/Users/johnc/claudefm-client` | `/Users/johnc/codefm` |
-| GitHub repo | `apparelmagic-johnc/claudefm-client` | `apparelmagic-johnc/codefm` (**public**) |
-| App display name | Claude FM | Code FM |
+| Repo directory | `/Users/johnc/codefm-client` | `/Users/johnc/codefm` |
+| GitHub repo | `apparelmagic-johnc/codefm-client` | `apparelmagic-johnc/codefm` (**public**) |
+| App display name | Code FM | Code FM |
 | Bundle ID | (current) | `com.johncioni.codefm` |
 | `UserDefaults` suite | default | `com.johncioni.codefm` (isolated) |
 | Login item identifier | (current) | `com.johncioni.codefm.LoginHelper` (or matching SMAppService name) |
@@ -24,7 +24,7 @@ The Claude mascot icon is preserved. Tagline remains "Music for thinking and bui
 | Menubar icon | Claude mascot | Claude mascot (kept) |
 | Tagline | "Music for thinking and building" | "Music for thinking and building" |
 
-Both apps install side-by-side, run simultaneously, have independent preferences, login-item state, hotkeys, and menubar slots. Nothing in Code FM references the Claude FM bundle, defaults suite, or login item.
+Both apps install side-by-side, run simultaneously, have independent preferences, login-item state, hotkeys, and menubar slots. Nothing in Code FM references the Code FM bundle, defaults suite, or login item.
 
 ## 3. Stream catalog (ship at v1.0)
 
@@ -48,9 +48,9 @@ Ten streams across five sub-genres. Sources verified for URL stability (research
 9. **SomaFM — DEF CON Radio** — PLS `https://somafm.com/defcon.pls`
 
 ### Brand / first-party
-10. **Claude FM** — YouTube `AUQKjgKQF7w` (channel `@claude`) *(default startup stream)*
+10. **Code FM** — YouTube `AUQKjgKQF7w` (channel `@claude`) *(default startup stream)*
 
-**Default startup stream on fresh install:** Claude FM (`claude-fm`). Reinforces the brand alignment with the Claude mascot icon on first launch.
+**Default startup stream on fresh install:** Code FM (`claude-fm`). Reinforces the brand alignment with the Claude mascot icon on first launch.
 
 **Sub-genre order in menu:** Lo-fi → Jazzhop → Synthwave → Ambient → Brand.
 
@@ -188,7 +188,7 @@ Ambient
    SomaFM — Mission Control
    SomaFM — DEF CON Radio
 Brand
-   Claude FM
+   Code FM
 ──────────
 Open Stream Library…
 ```
@@ -251,19 +251,19 @@ No other changes to About.
 
 Mechanical, scriptable steps. To be executed once at the start of implementation.
 
-1. **Copy:** `cp -R /Users/johnc/claudefm-client /Users/johnc/codefm`
+1. **Copy:** `cp -R /Users/johnc/codefm-client /Users/johnc/codefm`
 2. **Strip state:** `cd /Users/johnc/codefm && rm -rf .git .build build .superpowers/cache`
 3. **Rename pass** (search-and-replace across all non-binary files):
-   - `Claude FM` → `Code FM` (human-readable strings)
-   - `claudefm` → `codefm` (paths, identifiers, package names)
-   - `ClaudeFM` → `CodeFM` (Swift types, Package.swift product, entitlements basename)
+   - `Code FM` → `Code FM` (human-readable strings)
+   - `codefm` → `codefm` (paths, identifiers, package names)
+   - `CodeFM` → `CodeFM` (Swift types, Package.swift product, entitlements basename)
    - Bundle ID string in `Info.plist`
    - Carbon hotkey four-char signature in `HotkeyManager.swift`
    - SMAppService login helper identifier in `LoginItemManager.swift`
-   - `UserDefaults` suite: introduce `UserDefaults(suiteName: "com.johncioni.codefm")` and replace any `UserDefaults.standard` access in the existing code with this suite, so settings are fully isolated from Claude FM
-4. **File renames:** `ClaudeFM.entitlements` → `CodeFM.entitlements`; any other Claude-FM-named files.
+   - `UserDefaults` suite: introduce `UserDefaults(suiteName: "com.johncioni.codefm")` and replace any `UserDefaults.standard` access in the existing code with this suite, so settings are fully isolated from Code FM
+4. **File renames:** `CodeFM.entitlements` → `CodeFM.entitlements`; any other Claude-FM-named files.
 5. **README rewrite:** new project description, new repo URL, new app name.
-6. **Init git:** `git init && git add . && git commit -m "Initial commit: forked from claudefm-client@<sha>"` (record the source SHA in the commit message for provenance).
+6. **Init git:** `git init && git add . && git commit -m "Initial commit: forked from codefm-client@<sha>"` (record the source SHA in the commit message for provenance).
 7. **Create remote:** `gh repo create apparelmagic-johnc/codefm --public --source=. --push`.
 8. **Verify build:** clean universal build of both apps; install both; confirm:
    - Both menubar icons appear
@@ -272,7 +272,7 @@ Mechanical, scriptable steps. To be executed once at the start of implementation
    - Login items are independent
 9. Only after the rename/build smoke passes, begin implementing the catalog/Settings/player work on the new `codefm` repo.
 
-The Claude FM repo is never touched.
+The Code FM repo is never touched.
 
 ## 11. Error handling
 
@@ -298,7 +298,7 @@ The Claude FM repo is never touched.
 - Toggle Random; confirm picked stream is shown; pause/resume same stream; quit + reopen rerolls
 - Set a default; quit; reopen; confirm correct stream starts
 - Toggle "Play random on launch"; quit; reopen; confirm a random stream starts
-- Install Claude FM and Code FM simultaneously; confirm both menubar icons appear; confirm distinct hotkeys; confirm independent settings windows
+- Install Code FM and Code FM simultaneously; confirm both menubar icons appear; confirm distinct hotkeys; confirm independent settings windows
 - Open Stream Library → click artist website on each row → confirm browser opens correct URL
 - Open About → click "Stream sources & credits in Settings" → confirm Settings window opens
 
@@ -313,7 +313,7 @@ The Claude FM repo is never touched.
 - No analytics / telemetry of any kind.
 - No streams that require login or paid subscription.
 - No automatic catalog mutation by the app (only the developer commits to `streams.json`).
-- No backwards-compat shims for migrating Claude FM users' settings into Code FM (deliberate — they're fully separate apps).
+- No backwards-compat shims for migrating Code FM users' settings into Code FM (deliberate — they're fully separate apps).
 
 ## 14. Open items (non-blocking)
 
@@ -325,5 +325,5 @@ Stream selections and URL-stability evidence are summarized inline in §3 and §
 
 - **Lofi Girl** has rotated its main video ID exactly once (Jul 2022 false DMCA); the `@LofiGirl/live` channel URL auto-redirects to the current live ID. Hence the dual `videoId` + `channelLiveUrl` data model.
 - **SomaFM** PLS endpoints have been stable for 15+ years. PLS is preferred over raw `ice5.somafm.com/...` URLs because PLS files contain rotating server lists updated server-side.
-- **Claude FM** (`@claude/AUQKjgKQF7w`) is a first-party Anthropic stream launched January 2026 — institutional backing, short track record (~4 months).
+- **Code FM** (`@claude/AUQKjgKQF7w`) is a first-party Anthropic stream launched January 2026 — institutional backing, short track record (~4 months).
 - **Rejected:** NRW Radio (flaky beta endpoint), "the bootleg boy 2" / Dreamhop / Homework Radio (history of outages and ID rotation after copyright strikes), independent jazz/classical Icecast streams (no first-party, multi-year-stable endpoints found).

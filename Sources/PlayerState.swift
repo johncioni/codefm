@@ -27,13 +27,13 @@ enum PlayerState {
     var accessibilityLabel: String {
         switch self {
         case .stopped:
-            return "Claude FM — Stopped"
+            return "Code FM — Stopped"
         case .loading:
-            return "Claude FM — Loading"
+            return "Code FM — Loading"
         case .playing:
-            return "Claude FM — Playing"
+            return "Code FM — Playing"
         case .offline:
-            return "Claude FM — Offline"
+            return "Code FM — Offline"
         }
     }
 }

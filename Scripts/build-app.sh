@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-TARGET_NAME="ClaudeFM"
-DISPLAY_NAME="Claude FM"
+TARGET_NAME="CodeFM"
+DISPLAY_NAME="Code FM"
 APP_BUNDLE="build/$DISPLAY_NAME.app"
 
 echo "Building $DISPLAY_NAME (arm64)..."
@@ -28,7 +28,7 @@ cp Resources/Info.plist "$APP_BUNDLE/Contents/"
 cp Resources/AppIcon.icns "$APP_BUNDLE/Contents/Resources/"
 
 echo "Signing app bundle..."
-codesign --deep --force --sign - --entitlements Resources/ClaudeFM.entitlements "$APP_BUNDLE"
+codesign --deep --force --sign - --entitlements Resources/CodeFM.entitlements "$APP_BUNDLE"
 
 echo "Done: $APP_BUNDLE"
 echo "Run:  open \"$APP_BUNDLE\""

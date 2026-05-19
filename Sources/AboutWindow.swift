@@ -28,7 +28,7 @@ final class AboutWindow: NSWindow {
         content.addSubview(vinylView)
 
         // App name
-        let nameLabel = NSTextField(labelWithString: "Claude FM")
+        let nameLabel = NSTextField(labelWithString: "Code FM")
         nameLabel.font = .systemFont(ofSize: 24, weight: .bold)
         nameLabel.alignment = .center
         nameLabel.frame = NSRect(x: 0, y: 148, width: w, height: 30)
@@ -100,7 +100,7 @@ final class AboutWindow: NSWindow {
         streamLabel.frame = NSRect(x: 38, y: 12, width: 120, height: 18)
         linkBox.addSubview(streamLabel)
 
-        let linkButton = NSButton(title: "Claude FM on YouTube  \u{203A}", target: self, action: #selector(openStream))
+        let linkButton = NSButton(title: "Code FM on YouTube  \u{203A}", target: self, action: #selector(openStream))
         linkButton.bezelStyle = .inline
         linkButton.isBordered = false
         linkButton.font = .systemFont(ofSize: 13)

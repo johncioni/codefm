@@ -1,8 +1,8 @@
-# ClaudeFM Menubar App — Implementation Plan
+# CodeFM Menubar App — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a native macOS menubar app that plays the ClaudeFM YouTube live stream audio via yt-dlp and AVPlayer.
+**Goal:** Build a native macOS menubar app that plays the CodeFM YouTube live stream audio via yt-dlp and AVPlayer.
 
 **Architecture:** Swift Package Manager executable with AppKit. Three components (StatusBarController, StreamPlayer, PlayerState) plus AppDelegate/main. A build script assembles the .app bundle with bundled yt-dlp and Info.plist.
 
@@ -49,11 +49,11 @@ Create `Package.swift`:
 import PackageDescription
 
 let package = Package(
-    name: "ClaudeFM",
+    name: "CodeFM",
     platforms: [.macOS(.v13)],
     targets: [
         .executableTarget(
-            name: "ClaudeFM",
+            name: "CodeFM",
             path: "Sources",
             linkerSettings: [
                 .linkedFramework("AVFoundation")
@@ -73,15 +73,15 @@ Create `Resources/Info.plist`:
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>ClaudeFM</string>
+    <string>CodeFM</string>
     <key>CFBundleIdentifier</key>
-    <string>com.claudefm.app</string>
+    <string>com.codefm.app</string>
     <key>CFBundleVersion</key>
     <string>1.0</string>
     <key>CFBundleShortVersionString</key>
     <string>1.0</string>
     <key>CFBundleExecutable</key>
-    <string>ClaudeFM</string>
+    <string>CodeFM</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>LSUIElement</key>
@@ -105,7 +105,7 @@ Create `Scripts/build-app.sh`:
 #!/bin/bash
 set -euo pipefail
 
-APP_NAME="ClaudeFM"
+APP_NAME="CodeFM"
 BUILD_DIR=".build/release"
 APP_BUNDLE="build/$APP_NAME.app"
 
@@ -201,13 +201,13 @@ enum PlayerState {
     var accessibilityLabel: String {
         switch self {
         case .stopped:
-            return "ClaudeFM — Stopped"
+            return "CodeFM — Stopped"
         case .loading:
-            return "ClaudeFM — Loading"
+            return "CodeFM — Loading"
         case .playing:
-            return "ClaudeFM — Playing"
+            return "CodeFM — Playing"
         case .offline:
-            return "ClaudeFM — Offline"
+            return "CodeFM — Offline"
         }
     }
 }
@@ -429,7 +429,7 @@ final class StatusBarController: NSObject {
     private func setupMenu() {
         menu.addItem(
             NSMenuItem(
-                title: "Quit ClaudeFM",
+                title: "Quit CodeFM",
                 action: #selector(NSApplication.terminate(_:)),
                 keyEquivalent: "q"
             )
@@ -554,18 +554,18 @@ chmod +x Scripts/build-app.sh
 
 Expected output:
 ```
-Building ClaudeFM...
+Building CodeFM...
 Build complete!
 Assembling app bundle...
-Done: build/ClaudeFM.app
-Run:  open build/ClaudeFM.app
-Install: cp -r build/ClaudeFM.app /Applications/
+Done: build/CodeFM.app
+Run:  open build/CodeFM.app
+Install: cp -r build/CodeFM.app /Applications/
 ```
 
 - [ ] **Step 3: Launch the app and verify menubar icon**
 
 ```bash
-open build/ClaudeFM.app
+open build/CodeFM.app
 ```
 
 Verify manually:
@@ -594,8 +594,8 @@ Verify:
 Right-click the menubar icon.
 
 Verify:
-1. A small menu appears with "Quit ClaudeFM".
-2. Click "Quit ClaudeFM" — app exits, icon disappears from menubar.
+1. A small menu appears with "Quit CodeFM".
+2. Click "Quit CodeFM" — app exits, icon disappears from menubar.
 
 - [ ] **Step 7: Commit**
 

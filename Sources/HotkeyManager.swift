@@ -38,7 +38,7 @@ final class HotkeyManager {
             return false
         }
 
-        let hotKeyID = EventHotKeyID(signature: fourCharCode("CLFM"), id: 1)
+        let hotKeyID = EventHotKeyID(signature: fourCharCode("CDFM"), id: 1)
 
         let hotkeyStatus = RegisterEventHotKey(
             keyCode,

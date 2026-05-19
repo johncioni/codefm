@@ -2,11 +2,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "ClaudeFM",
+    name: "CodeFM",
     platforms: [.macOS(.v13)],
     targets: [
         .executableTarget(
-            name: "ClaudeFM",
+            name: "CodeFM",
             path: "Sources",
             linkerSettings: [
                 .linkedFramework("WebKit"),

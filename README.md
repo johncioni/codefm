@@ -1,11 +1,11 @@
-# Claude FM
+# Code FM
 
-A lightweight macOS menubar app that streams [Claude FM](https://www.youtube.com/live/YmQ7jRgf4f0) live audio.
+A lightweight macOS menubar app that streams [Code FM](https://www.youtube.com/live/YmQ7jRgf4f0) live audio.
 
 Lives in your menubar. Left-click to play/pause. Right-click for the full menu. No dock icon, no windows, no bloat.
 
 <p align="center">
-  <img src="docs/images/menu.png" alt="Claude FM menubar dropdown" width="320">
+  <img src="docs/images/menu.png" alt="Code FM menubar dropdown" width="320">
 </p>
 
 ## Features
@@ -27,15 +27,15 @@ Lives in your menubar. Left-click to play/pause. Right-click for the full menu. 
 ### From source
 
 ```bash
-git clone https://github.com/apparelmagic-johnc/claudefm-client.git
-cd claudefm-client
+git clone https://github.com/apparelmagic-johnc/codefm-client.git
+cd codefm-client
 ./Scripts/build-app.sh
-cp -r "build/Claude FM.app" /Applications/
+cp -r "build/Code FM.app" /Applications/
 ```
 
 ### Pre-built
 
-Copy `Claude FM.app` to `/Applications/`. On first launch, right-click the app and select "Open" — macOS requires this once for apps not signed with a Developer ID certificate.
+Copy `Code FM.app` to `/Applications/`. On first launch, right-click the app and select "Open" — macOS requires this once for apps not signed with a Developer ID certificate.
 
 ## Usage
 
@@ -53,7 +53,7 @@ Copy `Claude FM.app` to `/Applications/`. On first launch, right-click the app a
 - **Start at Login** — register as a login item
 - **Enable Global Hotkey** — toggle the hotkey on/off
 - **Configure Hotkey** — set a custom global keyboard shortcut
-- **About Claude FM** — app info and version
+- **About Code FM** — app info and version
 - **What's New** — changelog
 - **Quit** — exit the app
 
@@ -108,7 +108,7 @@ Copy `Claude FM.app` to `/Applications/`. On first launch, right-click the app a
 ### 1.0 — 2026-05-11
 
 **New**
-- Menubar audio player for the Claude FM live stream.
+- Menubar audio player for the Code FM live stream.
 - Volume control slider.
 - Play at start option.
 - Start at login support.
@@ -117,7 +117,7 @@ Copy `Claude FM.app` to `/Applications/`. On first launch, right-click the app a
 
 ## How it works
 
-Claude FM uses an embedded WebKit view with the YouTube iframe API to stream audio from the Claude FM live broadcast. The WebKit view runs off-screen (no visible window) and only handles audio playback. No video is rendered.
+Code FM uses an embedded WebKit view with the YouTube iframe API to stream audio from the Code FM live broadcast. The WebKit view runs off-screen (no visible window) and only handles audio playback. No video is rendered.
 
 ## Building
 
@@ -127,7 +127,7 @@ Requires Xcode command line tools (`xcode-select --install`).
 ./Scripts/build-app.sh
 ```
 
-This compiles with Swift Package Manager, assembles the `.app` bundle, and ad-hoc signs it. Output is at `build/Claude FM.app`.
+This compiles with Swift Package Manager, assembles the `.app` bundle, and ad-hoc signs it. Output is at `build/Code FM.app`.
 
 ## Tech stack
 

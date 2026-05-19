@@ -3,7 +3,7 @@ import ServiceManagement
 
 final class LoginItemManager {
     static let shared = LoginItemManager()
-    private let logger = Logger(subsystem: "com.claudefm.app", category: "LoginItem")
+    private let logger = Logger(subsystem: "com.johncioni.codefm", category: "LoginItem")
 
     var isEnabled: Bool {
         SMAppService.mainApp.status == .enabled

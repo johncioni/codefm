@@ -4,7 +4,7 @@ import WebKit
 
 final class StreamPlayer: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     static let videoID = "YmQ7jRgf4f0"
-    private static let playerOrigin = "https://claudefm.app"
+    private static let playerOrigin = "https://codefm.app"
     private static let playbackStartTimeout: TimeInterval = 25
     private static let bufferingHangTimeout: TimeInterval = 15
     private static let playerSize: CGFloat = 200
@@ -60,7 +60,7 @@ final class StreamPlayer: NSObject, WKNavigationDelegate, WKScriptMessageHandler
             return
         }
 
-        evaluatePlayerScript("window.ClaudeFMPlayer && window.ClaudeFMPlayer.stop();")
+        evaluatePlayerScript("window.CodeFMPlayer && window.CodeFMPlayer.stop();")
         state = .stopped
     }
 
@@ -85,7 +85,7 @@ final class StreamPlayer: NSObject, WKNavigationDelegate, WKScriptMessageHandler
         shouldPlayWhenReady = false
         sendVolumeToPlayer()
 
-        evaluatePlayerScript("window.ClaudeFMPlayer && window.ClaudeFMPlayer.play();") { [weak self] didSucceed in
+        evaluatePlayerScript("window.CodeFMPlayer && window.CodeFMPlayer.play();") { [weak self] didSucceed in
             guard let self, !didSucceed else { return }
             // JS eval failed — the webview is likely dead (content process crashed
             // or never reached `ready`). Mark the session failed so the next play()
@@ -103,7 +103,7 @@ final class StreamPlayer: NSObject, WKNavigationDelegate, WKScriptMessageHandler
         guard webView == nil else { return }
 
         let contentController = WKUserContentController()
-        contentController.add(WeakScriptMessageHandler(self), name: "claudeFM")
+        contentController.add(WeakScriptMessageHandler(self), name: "codeFM")
 
         let configuration = WKWebViewConfiguration()
         configuration.userContentController = contentController
@@ -184,7 +184,7 @@ final class StreamPlayer: NSObject, WKNavigationDelegate, WKScriptMessageHandler
         // callbacks can't fire against `self` after a new session is built.
         webView?.stopLoading()
         webView?.navigationDelegate = nil
-        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "claudeFM")
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "codeFM")
         playerWindow?.orderOut(nil)
         playerWindow?.contentView = nil
         webView = nil
@@ -196,7 +196,7 @@ final class StreamPlayer: NSObject, WKNavigationDelegate, WKScriptMessageHandler
     private func sendVolumeToPlayer() {
         guard webView != nil else { return }
         let percentage = Int((Settings.clampedVolume(volume) * 100).rounded())
-        evaluatePlayerScript("window.ClaudeFMPlayer && window.ClaudeFMPlayer.setVolume(\(percentage));")
+        evaluatePlayerScript("window.CodeFMPlayer && window.CodeFMPlayer.setVolume(\(percentage));")
     }
 
     private func evaluatePlayerScript(_ script: String, completion: ((Bool) -> Void)? = nil) {
@@ -298,7 +298,7 @@ final class StreamPlayer: NSObject, WKNavigationDelegate, WKScriptMessageHandler
 
             function post(message) {
               try {
-                window.webkit.messageHandlers.claudeFM.postMessage(message);
+                window.webkit.messageHandlers.codeFM.postMessage(message);
               } catch (_) {}
             }
 
@@ -308,7 +308,7 @@ final class StreamPlayer: NSObject, WKNavigationDelegate, WKScriptMessageHandler
               isCued = true;
             }
 
-            window.ClaudeFMPlayer = {
+            window.CodeFMPlayer = {
               play: function() {
                 pendingPlay = true;
                 post({ type: "state", state: "loading" });
@@ -359,7 +359,7 @@ final class StreamPlayer: NSObject, WKNavigationDelegate, WKScriptMessageHandler
                     isCued = true;
                     post({ type: "ready" });
                     if (pendingPlay) {
-                      window.ClaudeFMPlayer.play();
+                      window.CodeFMPlayer.play();
                     }
                   },
                   onStateChange: function(event) {
@@ -426,7 +426,7 @@ final class StreamPlayer: NSObject, WKNavigationDelegate, WKScriptMessageHandler
     // MARK: - WKScriptMessageHandler
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard message.name == "claudeFM",
+        guard message.name == "codeFM",
               message.frameInfo.isMainFrame,
               let body = message.body as? [String: Any] else { return }
         handlePlayerMessage(body)

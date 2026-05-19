@@ -24,7 +24,7 @@ final class LiquidGlassMenuPanel: NSPanel {
     private let startAtLoginToggle = ToggleRow(icon: "arrow.right.to.line", label: "Start at Login")
     private let enableHotkeyToggle = ToggleRow(icon: "bolt.fill", label: "Enable Global Hotkey")
     private let configureHotkeyRow = MenuRow(icon: "key.fill", label: "Configure Hotkey", trail: .keyHint(""))
-    private let aboutRow = MenuRow(icon: "info.circle.fill", label: "About Claude FM")
+    private let aboutRow = MenuRow(icon: "info.circle.fill", label: "About Code FM")
     private let whatsNewRow = MenuRow(icon: "newspaper.fill", label: "What's New", trail: .pill(""))
     private let quitRow = MenuRow(icon: "power", label: "Quit", trail: .keyHint("⌘Q"))
 
@@ -335,7 +335,7 @@ final class LiquidGlassMenuPanel: NSPanel {
 
 private final class NowPlayingCardView: NSView {
     private let iconView = NSImageView()
-    private let titleLabel = NSTextField(labelWithString: "Claude FM")
+    private let titleLabel = NSTextField(labelWithString: "Code FM")
     private let stateDot = NSView()
     private let stateLabel = NSTextField(labelWithString: "Now Playing")
     private let playButton = CircularPlayButton()

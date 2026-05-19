@@ -1,8 +1,8 @@
-# ClaudeFM — macOS Menubar Audio Player
+# CodeFM — macOS Menubar Audio Player
 
 ## Overview
 
-A native macOS menubar app that plays the ClaudeFM YouTube live stream (audio only). Ultra-minimal: left-click toggles playback, right-click shows a quit menu. No dock icon, no main window.
+A native macOS menubar app that plays the CodeFM YouTube live stream (audio only). Ultra-minimal: left-click toggles playback, right-click shows a quit menu. No dock icon, no main window.
 
 **Stream URL:** https://www.youtube.com/live/YmQ7jRgf4f0
 
@@ -73,9 +73,9 @@ LOADING + yt-dlp fails → OFFLINE
 ## Project Structure
 
 ```
-ClaudeFM/
-├── ClaudeFM.xcodeproj
-├── ClaudeFM/
+CodeFM/
+├── CodeFM.xcodeproj
+├── CodeFM/
 │   ├── AppDelegate.swift
 │   ├── StatusBarController.swift
 │   ├── StreamPlayer.swift
@@ -97,7 +97,7 @@ ClaudeFM/
 ## Interaction Model
 
 - **Left-click** on menubar icon: toggle play/pause.
-- **Right-click** on menubar icon: show menu with "Quit ClaudeFM" item.
+- **Right-click** on menubar icon: show menu with "Quit CodeFM" item.
 - **No other UI.** No windows, no preferences, no popups, no notifications.
 
 ## Non-Goals

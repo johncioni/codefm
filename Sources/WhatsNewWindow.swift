@@ -50,7 +50,7 @@ final class WhatsNewWindow: NSWindow {
         ]),
         Release(version: "1.0", date: "5/11/26", isLatest: false, entries: [
             (tag: "NEW", tagColor: .systemOrange, items: [
-                "Menu bar audio player for the Claude FM live stream.",
+                "Menu bar audio player for the Code FM live stream.",
                 "Volume slider.",
                 "Play at launch option.",
                 "Start at login.",
