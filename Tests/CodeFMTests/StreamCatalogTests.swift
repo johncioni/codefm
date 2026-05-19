@@ -64,4 +64,33 @@ final class StreamCatalogTests: XCTestCase {
         let stream = try JSONDecoder().decode(Stream.self, from: json)
         XCTAssertEqual(stream.subgenre, .other)
     }
+
+    func test_catalogLoadsBundled() throws {
+        let catalog = try StreamCatalog.loadBundled()
+        XCTAssertGreaterThanOrEqual(catalog.streams.count, 10)
+        XCTAssertEqual(catalog.defaultStreamId, "claude-fm")
+        XCTAssertTrue(catalog.streams.contains(where: { $0.id == "claude-fm" }))
+    }
+
+    func test_malformedStreamIsSkippedNotRejected() throws {
+        let json = """
+        {
+          "schemaVersion": 1,
+          "defaultStreamId": "a",
+          "streams": [
+            { "id": "a", "displayName": "A", "subgenre": "lofi", "type": "direct_audio",
+              "url": "https://example.com/a.pls",
+              "attribution": { "artist": "A", "website": "https://example.com" },
+              "description": "a", "providerLabel": "X" },
+            { "id": "broken", "displayName": "Broken", "subgenre": "lofi", "type": "invented_type",
+              "attribution": { "artist": "B", "website": "https://example.com" },
+              "description": "b", "providerLabel": "X" }
+          ]
+        }
+        """.data(using: .utf8)!
+
+        let catalog = try StreamCatalog.decode(from: json)
+        XCTAssertEqual(catalog.streams.count, 1)
+        XCTAssertEqual(catalog.streams.first?.id, "a")
+    }
 }

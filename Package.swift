@@ -7,8 +7,21 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "CodeFM",
-            path: "Sources",
-            resources: [.copy("../Resources/streams.json")],
+            path: ".",
+            exclude: [
+                "Package.swift",
+                "README.md",
+                "Tests",
+                "Scripts",
+                "docs",
+                "build",
+                "Resources/AppIcon.icns",
+                "Resources/AppIcon.png",
+                "Resources/CodeFM.entitlements",
+                "Resources/Info.plist",
+            ],
+            sources: ["Sources"],
+            resources: [.copy("Resources/streams.json")],
             linkerSettings: [
                 .linkedFramework("WebKit"),
                 .linkedFramework("AVFoundation"),
