@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "defaultStreamId": "claude-fm",
+  "streams": [
+    {
+      "id": "lofigirl-main",
+      "displayName": "Lofi Girl — Beats to Relax/Study",
+      "subgenre": "lofi",
+      "type": "youtube_live",
+      "videoId": "jfKfPfyJRdk",
+      "channelLiveUrl": "https://www.youtube.com/@LofiGirl/live",
+      "attribution": { "artist": "Lofi Girl", "website": "https://lofigirl.com" },
+      "description": "The original 24/7 lo-fi study stream.",
+      "providerLabel": "YouTube"
+    },
+    {
+      "id": "lofigirl-jazz",
+      "displayName": "Lofi Girl — Jazz Lofi",
+      "subgenre": "jazzhop",
+      "type": "youtube_live",
+      "videoId": "HuFYqnbVbzY",
+      "channelLiveUrl": "https://www.youtube.com/@LofiGirl/live",
+      "attribution": { "artist": "Lofi Girl", "website": "https://lofigirl.com" },
+      "description": "Mellow jazz-tinged lo-fi for deep work.",
+      "providerLabel": "YouTube"
+    },
+    {
+      "id": "lofigirl-synthwave",
+      "displayName": "Lofi Girl — Synthwave Radio",
+      "subgenre": "synthwave",
+      "type": "youtube_live",
+      "videoId": "4xDzrJKXOOY",
+      "channelLiveUrl": "https://www.youtube.com/@LofiGirl/live",
+      "attribution": { "artist": "Lofi Girl (Synthwave Boy)", "website": "https://lofigirl.com" },
+      "description": "Retro-synth chill for night coding.",
+      "providerLabel": "YouTube"
+    },
+    {
+      "id": "chillhop-radio",
+      "displayName": "Chillhop Radio — Jazzy & Lo-fi",
+      "subgenre": "jazzhop",
+      "type": "youtube_live",
+      "videoId": "5yx6BWlEVcY",
+      "channelLiveUrl": "https://www.youtube.com/channel/UCOxqgCwgOqC2lMqC5PYz_Dg/live",
+      "attribution": { "artist": "Chillhop Music", "website": "https://chillhop.com" },
+      "description": "Chillhop's flagship jazzy hip-hop radio.",
+      "providerLabel": "YouTube"
+    },
+    {
+      "id": "college-music-live",
+      "displayName": "College Music — 24/7 Live Radio",
+      "subgenre": "lofi",
+      "type": "youtube_live",
+      "videoId": "gmv54pfxk0Q",
+      "channelLiveUrl": "https://www.youtube.com/channel/UCWzZ5TIGoZ6o-KtbGCyhnhg/live",
+      "attribution": { "artist": "College Music", "website": "https://www.collegemusic.com" },
+      "description": "Chilled indie/electronic beats from up-and-coming artists.",
+      "providerLabel": "YouTube"
+    },
+    {
+      "id": "somafm-groovesalad",
+      "displayName": "SomaFM — Groove Salad",
+      "subgenre": "ambient",
+      "type": "direct_audio",
+      "url": "https://somafm.com/groovesalad256.pls",
+      "attribution": { "artist": "SomaFM", "website": "https://somafm.com/groovesalad/" },
+      "description": "Chilled ambient downtempo, listener-supported, ad-free.",
+      "providerLabel": "SomaFM"
+    },
+    {
+      "id": "somafm-dronezone",
+      "displayName": "SomaFM — Drone Zone",
+      "subgenre": "ambient",
+      "type": "direct_audio",
+      "url": "https://somafm.com/dronezone256.pls",
+      "attribution": { "artist": "SomaFM", "website": "https://somafm.com/dronezone/" },
+      "description": "Atmospheric textures with minimal beats.",
+      "providerLabel": "SomaFM"
+    },
+    {
+      "id": "somafm-missioncontrol",
+      "displayName": "SomaFM — Mission Control",
+      "subgenre": "ambient",
+      "type": "direct_audio",
+      "url": "https://somafm.com/missioncontrol.pls",
+      "attribution": { "artist": "SomaFM", "website": "https://somafm.com/missioncontrol/" },
+      "description": "Ambient electronica woven with NASA mission audio.",
+      "providerLabel": "SomaFM"
+    },
+    {
+      "id": "somafm-defcon",
+      "displayName": "SomaFM — DEF CON Radio",
+      "subgenre": "ambient",
+      "type": "direct_audio",
+      "url": "https://somafm.com/defcon.pls",
+      "attribution": { "artist": "SomaFM", "website": "https://somafm.com/defcon/" },
+      "description": "Music for hacking — synth-leaning focus fuel.",
+      "providerLabel": "SomaFM"
+    },
+    {
+      "id": "claude-fm",
+      "displayName": "Claude FM",
+      "subgenre": "brand",
+      "type": "youtube_live",
+      "videoId": "YmQ7jRgf4f0",
+      "channelLiveUrl": "https://www.youtube.com/@claude/live",
+      "attribution": { "artist": "Anthropic", "website": "https://claude.com" },
+      "description": "Music for thinking and building.",
+      "providerLabel": "YouTube"
+    }
+  ]
+}
