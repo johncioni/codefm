@@ -1,0 +1,70 @@
+import Foundation
+import Carbon
+
+final class Settings {
+    static let shared = Settings()
+    private static let defaultVolume: Float = 1.0
+    private static let defaultHotkeyKeyCode: UInt32 = 35
+    private static let defaultHotkeyModifiers = UInt32(cmdKey | shiftKey)
+    private static let allowedHotkeyModifiers = UInt32(cmdKey | optionKey | controlKey | shiftKey)
+
+    private let defaults = UserDefaults.standard
+
+    private enum Keys {
+        static let volume = "volume"
+        static let playAtStart = "playAtStart"
+        static let globalHotkeyEnabled = "globalHotkeyEnabled"
+        static let hotkeyKeyCode = "hotkeyKeyCode"
+        static let hotkeyModifiers = "hotkeyModifiers"
+    }
+
+    func registerDefaults() {
+        defaults.register(defaults: [
+            Keys.volume: Self.defaultVolume,
+            Keys.playAtStart: false,
+            Keys.globalHotkeyEnabled: false,
+            Keys.hotkeyKeyCode: Int(Self.defaultHotkeyKeyCode),
+            Keys.hotkeyModifiers: Int(Self.defaultHotkeyModifiers),
+        ])
+    }
+
+    var volume: Float {
+        get { Self.clampedVolume(defaults.float(forKey: Keys.volume)) }
+        set { defaults.set(Self.clampedVolume(newValue), forKey: Keys.volume) }
+    }
+
+    var playAtStart: Bool {
+        get { defaults.bool(forKey: Keys.playAtStart) }
+        set { defaults.set(newValue, forKey: Keys.playAtStart) }
+    }
+
+    var globalHotkeyEnabled: Bool {
+        get { defaults.bool(forKey: Keys.globalHotkeyEnabled) }
+        set { defaults.set(newValue, forKey: Keys.globalHotkeyEnabled) }
+    }
+
+    var hotkeyKeyCode: UInt32 {
+        get { uint32Value(forKey: Keys.hotkeyKeyCode, fallback: Self.defaultHotkeyKeyCode) }
+        set { defaults.set(Int(newValue), forKey: Keys.hotkeyKeyCode) }
+    }
+
+    var hotkeyModifiers: UInt32 {
+        get {
+            let modifiers = uint32Value(forKey: Keys.hotkeyModifiers, fallback: Self.defaultHotkeyModifiers)
+                & Self.allowedHotkeyModifiers
+            return modifiers == 0 ? Self.defaultHotkeyModifiers : modifiers
+        }
+        set { defaults.set(Int(newValue & Self.allowedHotkeyModifiers), forKey: Keys.hotkeyModifiers) }
+    }
+
+    static func clampedVolume(_ value: Float) -> Float {
+        guard value.isFinite else { return defaultVolume }
+        return min(max(value, 0.0), 1.0)
+    }
+
+    private func uint32Value(forKey key: String, fallback: UInt32) -> UInt32 {
+        let value = defaults.integer(forKey: key)
+        guard value >= 0, value <= Int(UInt16.max) else { return fallback }
+        return UInt32(value)
+    }
+}

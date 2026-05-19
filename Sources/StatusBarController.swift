@@ -1,0 +1,207 @@
+import AppKit
+
+final class StatusBarController: NSObject {
+    private let statusItem: NSStatusItem
+    private let streamPlayer: StreamPlayer
+
+    private var recorderWindow: HotkeyRecorderWindow?
+    private var aboutWindow: AboutWindow?
+    private var whatsNewWindow: WhatsNewWindow?
+    private var spinnerView: NSView?
+    private var liquidGlassPanel: LiquidGlassMenuPanel?
+
+    init(streamPlayer: StreamPlayer) {
+        self.streamPlayer = streamPlayer
+        self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+
+        super.init()
+
+        setupButton()
+
+        streamPlayer.onStateChange = { [weak self] state in
+            self?.updateIcon(for: state)
+            self?.liquidGlassPanel?.updatePlayerState(state)
+        }
+
+        updateIcon(for: .stopped)
+    }
+
+    private func setupButton() {
+        guard let button = statusItem.button else { return }
+        button.action = #selector(handleClick)
+        button.target = self
+        button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+    }
+
+    private func showLiquidGlassPanel() {
+        guard let button = statusItem.button else { return }
+
+        if liquidGlassPanel == nil {
+            let panel = LiquidGlassMenuPanel(streamPlayer: streamPlayer)
+            panel.onShowAbout = { [weak self] in self?.showAbout() }
+            panel.onShowWhatsNew = { [weak self] in self?.showWhatsNew() }
+            panel.onConfigureHotkey = { [weak self] in self?.configureHotkey() }
+            panel.onHotkeyEnabledChanged = { [weak self] in
+                guard let self else { return }
+                if Settings.shared.globalHotkeyEnabled {
+                    self.registerCurrentHotkey()
+                } else {
+                    HotkeyManager.shared.unregister()
+                }
+            }
+            liquidGlassPanel = panel
+        }
+
+        // The panel's global event monitor ignores clicks on the status item, so the
+        // panel stays open if the user clicks elsewhere on the icon — this toggle is
+        // what closes it on a subsequent icon click.
+        if let panel = liquidGlassPanel, panel.isVisible {
+            panel.close()
+            return
+        }
+
+        liquidGlassPanel?.show(below: button)
+    }
+
+    // MARK: - Actions
+
+    @objc private func handleClick() {
+        guard let event = NSApp.currentEvent else { return }
+
+        if event.type == .rightMouseUp {
+            showLiquidGlassPanel()
+        } else {
+            streamPlayer.togglePlayback()
+        }
+    }
+
+    @objc private func configureHotkey() {
+        let window = HotkeyRecorderWindow()
+        window.onSettingsChanged = { [weak self] in
+            if Settings.shared.globalHotkeyEnabled {
+                self?.registerCurrentHotkey()
+            } else {
+                HotkeyManager.shared.unregister()
+            }
+        }
+        window.makeKeyAndOrderFront(nil)
+        activateApp()
+        recorderWindow = window
+    }
+
+    @objc private func showAbout() {
+        if aboutWindow == nil { aboutWindow = AboutWindow() }
+        aboutWindow?.makeKeyAndOrderFront(nil)
+        activateApp()
+    }
+
+    @objc private func showWhatsNew() {
+        if whatsNewWindow == nil { whatsNewWindow = WhatsNewWindow() }
+        whatsNewWindow?.makeKeyAndOrderFront(nil)
+        activateApp()
+    }
+
+    private func activateApp() {
+        if #available(macOS 14.0, *) {
+            NSApp.activate()
+        } else {
+            NSApp.activate(ignoringOtherApps: true)
+        }
+    }
+
+    @discardableResult
+    func registerCurrentHotkey() -> Bool {
+        let didRegister = HotkeyManager.shared.register(
+            keyCode: Settings.shared.hotkeyKeyCode,
+            modifiers: Settings.shared.hotkeyModifiers
+        ) { [weak self] in
+            self?.streamPlayer.togglePlayback()
+        }
+
+        if !didRegister {
+            Settings.shared.globalHotkeyEnabled = false
+        }
+
+        return didRegister
+    }
+
+    // MARK: - Icon
+
+    private func updateIcon(for state: PlayerState) {
+        guard let button = statusItem.button else { return }
+
+        // Reset opacity unconditionally — otherwise transitioning from .offline
+        // (alpha 0.3) straight to .loading would render the spinner at 30% opacity.
+        button.alphaValue = state.opacity
+
+        if state == .loading {
+            showSpinner(in: button)
+        } else {
+            hideSpinner()
+            let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .regular)
+            let image = NSImage(
+                systemSymbolName: state.symbolName,
+                accessibilityDescription: state.accessibilityLabel
+            )?.withSymbolConfiguration(config)
+            image?.isTemplate = true
+            button.image = image
+        }
+
+        button.toolTip = state.accessibilityLabel
+    }
+
+    private func showSpinner(in button: NSStatusBarButton) {
+        button.image = nil
+
+        if spinnerView == nil {
+            spinnerView = Self.makeSpinnerView(in: button.bounds)
+        }
+        guard let spinner = spinnerView else { return }
+        if spinner.superview !== button {
+            button.addSubview(spinner)
+        }
+        spinner.isHidden = false
+    }
+
+    private func hideSpinner() {
+        spinnerView?.isHidden = true
+    }
+
+    private static func makeSpinnerView(in bounds: NSRect) -> NSView {
+        let size: CGFloat = 17
+        let view = NSView(frame: bounds)
+        view.wantsLayer = true
+
+        let container = CALayer()
+        container.bounds = NSRect(x: 0, y: 0, width: size, height: size)
+        container.position = CGPoint(x: bounds.midX, y: bounds.midY + 2.5)
+
+        let dotCount = 8
+        let dotSize: CGFloat = 2.5
+        let radius: CGFloat = (size - dotSize) / 2.2
+
+        for i in 0..<dotCount {
+            let angle = (CGFloat(i) / CGFloat(dotCount)) * .pi * 2 - .pi / 2
+            let x = size / 2 + cos(angle) * radius - dotSize / 2
+            let y = size / 2 + sin(angle) * radius - dotSize / 2
+
+            let dot = CALayer()
+            dot.frame = NSRect(x: x, y: y, width: dotSize, height: dotSize)
+            dot.cornerRadius = dotSize / 2
+            dot.backgroundColor = NSColor.white.cgColor
+            dot.opacity = Float(1.0 - (CGFloat(i) / CGFloat(dotCount)) * 0.75)
+            container.addSublayer(dot)
+        }
+
+        let rotation = CABasicAnimation(keyPath: "transform.rotation.z")
+        rotation.fromValue = 0
+        rotation.toValue = -Double.pi * 2
+        rotation.duration = 0.8
+        rotation.repeatCount = .infinity
+        rotation.isRemovedOnCompletion = false
+        container.add(rotation, forKey: "spin")
+
+        view.layer?.addSublayer(container)
+        return view
+    }
+}
