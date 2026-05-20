@@ -8,7 +8,10 @@ final class Settings {
     private static let defaultHotkeyModifiers = UInt32(cmdKey | shiftKey)
     private static let allowedHotkeyModifiers = UInt32(cmdKey | optionKey | controlKey | shiftKey)
 
-    private let defaults = UserDefaults.standard
+    static let suiteName = "com.johncioni.codefm"
+    private let defaults: UserDefaults = {
+        UserDefaults(suiteName: Settings.suiteName) ?? .standard
+    }()
 
     private enum Keys {
         static let volume = "volume"
@@ -16,6 +19,7 @@ final class Settings {
         static let globalHotkeyEnabled = "globalHotkeyEnabled"
         static let hotkeyKeyCode = "hotkeyKeyCode"
         static let hotkeyModifiers = "hotkeyModifiers"
+        static let defaultStreamId = "defaultStreamId"      // nil = use catalog default; "random" = random
     }
 
     func registerDefaults() {
@@ -25,7 +29,16 @@ final class Settings {
             Keys.globalHotkeyEnabled: false,
             Keys.hotkeyKeyCode: Int(Self.defaultHotkeyKeyCode),
             Keys.hotkeyModifiers: Int(Self.defaultHotkeyModifiers),
+            // defaultStreamId intentionally absent; missing = "use catalog's defaultStreamId"
         ])
+    }
+
+    var defaultStreamId: String? {
+        get { defaults.string(forKey: Keys.defaultStreamId) }
+        set {
+            if let newValue { defaults.set(newValue, forKey: Keys.defaultStreamId) }
+            else { defaults.removeObject(forKey: Keys.defaultStreamId) }
+        }
     }
 
     var volume: Float {
