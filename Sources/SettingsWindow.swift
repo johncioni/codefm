@@ -18,6 +18,10 @@ final class SettingsWindow: NSWindowController {
 
     private var randomOnLaunchCheckbox: NSButton!
     private var defaultStreamSummary: NSTextField!
+    private var hotkeyEnabledCheckbox: NSButton!
+    private var loginItemCheckbox: NSButton!
+    private var playAtStartCheckbox: NSButton!
+    private var hotkeyRecorder: HotkeyRecorderView!
 
     var onSetDefaultStream: ((String?) -> Void)?       // nil = clear (use catalog default)
     var onPlayStream: ((Stream) -> Void)?
@@ -64,7 +68,8 @@ final class SettingsWindow: NSWindowController {
         startupStack = makeSectionStack(header: "Startup")
         populateStartup()
 
-        generalStack = makeSectionStack(header: "General")  // populated in T17
+        generalStack = makeSectionStack(header: "General")
+        populateGeneral()
 
         contentStack.addArrangedSubview(libraryStack)
         contentStack.addArrangedSubview(startupStack)
@@ -205,6 +210,60 @@ final class SettingsWindow: NSWindowController {
         }
         refreshDefaultStreamSummary()
         populateLibrary()
+    }
+
+    private func populateGeneral() {
+        generalStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        let label = NSTextField(labelWithString: "General")
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        generalStack.addArrangedSubview(label)
+
+        playAtStartCheckbox = NSButton(
+            checkboxWithTitle: "Start playing when Code FM launches",
+            target: self,
+            action: #selector(handlePlayAtStartToggled(_:))
+        )
+        playAtStartCheckbox.state = settings.playAtStart ? .on : .off
+        generalStack.addArrangedSubview(playAtStartCheckbox)
+
+        loginItemCheckbox = NSButton(
+            checkboxWithTitle: "Launch Code FM at login",
+            target: self,
+            action: #selector(handleLoginItemToggled(_:))
+        )
+        loginItemCheckbox.state = LoginItemManager.shared.isEnabled ? .on : .off
+        generalStack.addArrangedSubview(loginItemCheckbox)
+
+        hotkeyEnabledCheckbox = NSButton(
+            checkboxWithTitle: "Enable global play/pause hotkey",
+            target: self,
+            action: #selector(handleHotkeyEnabledToggled(_:))
+        )
+        hotkeyEnabledCheckbox.state = settings.globalHotkeyEnabled ? .on : .off
+        generalStack.addArrangedSubview(hotkeyEnabledCheckbox)
+
+        hotkeyRecorder = HotkeyRecorderView(settings: settings)
+        hotkeyRecorder.isEnabled = settings.globalHotkeyEnabled
+        generalStack.addArrangedSubview(hotkeyRecorder)
+    }
+
+    @objc private func handlePlayAtStartToggled(_ sender: NSButton) {
+        settings.playAtStart = (sender.state == .on)
+    }
+
+    @objc private func handleLoginItemToggled(_ sender: NSButton) {
+        LoginItemManager.shared.setEnabled(sender.state == .on)
+        // SMAppService may refuse (denied prompt); reflect actual state.
+        sender.state = LoginItemManager.shared.isEnabled ? .on : .off
+    }
+
+    @objc private func handleHotkeyEnabledToggled(_ sender: NSButton) {
+        settings.globalHotkeyEnabled = (sender.state == .on)
+        hotkeyRecorder.isEnabled = settings.globalHotkeyEnabled
+        NotificationCenter.default.post(name: .codeFMHotkeyConfigChanged, object: nil)
+        // The controller may flip it back off if registration failed — mirror that.
+        sender.state = settings.globalHotkeyEnabled ? .on : .off
+        hotkeyRecorder.isEnabled = settings.globalHotkeyEnabled
     }
 
     private func refreshDefaultStreamSummary() {

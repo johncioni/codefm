@@ -5,7 +5,6 @@ final class StatusBarController: NSObject {
     private let streamPlayer: StreamPlayer
     private var catalog: StreamCatalog
 
-    private var recorderWindow: HotkeyRecorderWindow?
     private var aboutWindow: AboutWindow?
     private var whatsNewWindow: WhatsNewWindow?
     private var settingsWindowController: SettingsWindow?
@@ -31,7 +30,23 @@ final class StatusBarController: NSObject {
             self?.updateIcon(for: streamPlayer.state)
         }
 
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleHotkeyConfigChanged),
+            name: .codeFMHotkeyConfigChanged,
+            object: nil
+        )
+
         updateIcon(for: .stopped)
+    }
+
+    @objc private func handleHotkeyConfigChanged() {
+        if Settings.shared.globalHotkeyEnabled {
+            registerCurrentHotkey()
+        } else {
+            HotkeyManager.shared.unregister()
+        }
+        liquidGlassPanel?.syncState()
     }
 
     func updateCatalog(_ catalog: StreamCatalog) {
@@ -101,17 +116,7 @@ final class StatusBarController: NSObject {
     }
 
     @objc private func configureHotkey() {
-        let window = HotkeyRecorderWindow()
-        window.onSettingsChanged = { [weak self] in
-            if Settings.shared.globalHotkeyEnabled {
-                self?.registerCurrentHotkey()
-            } else {
-                HotkeyManager.shared.unregister()
-            }
-        }
-        window.makeKeyAndOrderFront(nil)
-        activateApp()
-        recorderWindow = window
+        openSettingsWindow(section: .general)
     }
 
     private func openStreamLibrary() {
