@@ -21,10 +21,18 @@ extension StreamCatalog {
     )!
 
     static func loadBundled() throws -> StreamCatalog {
-        guard let url = Bundle.module.url(
+        // In the .app, streams.json is shipped flat in Contents/Resources/ — see
+        // build-app.sh. In SwiftPM (tests / `swift run`), it lives in the package
+        // resource bundle. Try Bundle.main first so the .app codesign layout
+        // doesn't need a nested loose bundle.
+        let url = Bundle.main.url(
             forResource: bundledResourceName,
             withExtension: bundledResourceExtension
-        ) else {
+        ) ?? Bundle.module.url(
+            forResource: bundledResourceName,
+            withExtension: bundledResourceExtension
+        )
+        guard let url else {
             throw NSError(
                 domain: "CodeFM.StreamCatalog", code: 1,
                 userInfo: [NSLocalizedDescriptionKey: "Bundled streams.json missing"]

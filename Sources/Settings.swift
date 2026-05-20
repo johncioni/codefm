@@ -8,7 +8,11 @@ final class Settings {
     private static let defaultHotkeyModifiers = UInt32(cmdKey | shiftKey)
     private static let allowedHotkeyModifiers = UInt32(cmdKey | optionKey | controlKey | shiftKey)
 
-    static let suiteName = "com.johncioni.codefm"
+    // Distinct from the app's bundle id (com.johncioni.codefm). macOS rejects a
+    // suite whose name equals the bundle id ("does not make sense and will not
+    // work"), causing UserDefaults(suiteName:) to return nil and silently fall
+    // back to .standard.
+    static let suiteName = "com.johncioni.codefm.preferences"
     private let defaults: UserDefaults = {
         UserDefaults(suiteName: Settings.suiteName) ?? .standard
     }()

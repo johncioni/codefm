@@ -26,6 +26,7 @@ mkdir -p "$APP_BUNDLE/Contents/Resources"
 mv "build/$TARGET_NAME" "$APP_BUNDLE/Contents/MacOS/$DISPLAY_NAME"
 cp Resources/Info.plist "$APP_BUNDLE/Contents/"
 cp Resources/AppIcon.icns "$APP_BUNDLE/Contents/Resources/"
+cp Resources/streams.json "$APP_BUNDLE/Contents/Resources/"
 
 echo "Signing app bundle..."
 codesign --deep --force --sign - --entitlements Resources/CodeFM.entitlements "$APP_BUNDLE"
