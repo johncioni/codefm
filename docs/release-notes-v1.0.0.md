@@ -9,7 +9,7 @@ configurable default stream, and a global play/pause hotkey.
 
 ## Highlights
 
-- **17 streams** across 5 sub-genres — lo-fi, jazzhop, synthwave, ambient, brand
+- **19 streams** across 5 sub-genres — lo-fi, jazzhop, synthwave, ambient, brand
 - **Tiny menubar footprint** — Liquid Glass dropdown panel with Now Playing,
   volume, stream picker, and per-app settings
 - **Random mode** — 🎲 picks a stream from the catalog, or "Play random on
@@ -37,7 +37,7 @@ configurable default stream, and a global play/pause hotkey.
 | Jazzhop | Lofi Girl (jazz), Chillhop Radio, SomaFM Sonic Universe |
 | Synthwave | Lofi Girl (synthwave), The 80s Guy (darksynth), SomaFM Underground 80s |
 | Ambient | SomaFM Groove Salad, Drone Zone, Mission Control, DEF CON, Deep Space One, Space Station Soma |
-| Brand | Claude FM |
+| Brand | Claude FM, Pixar LoFi (Soul's Half Note Jazz Club), Monstercat Silk |
 
 Stream sources and credits are listed in **Settings → Stream Library** — each
 row links to the artist's website. Lofi Girl, Chillhop, The Bootleg Boy, Lofi
