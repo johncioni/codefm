@@ -60,9 +60,19 @@ final class StatusBarController: NSObject {
         liquidGlassPanel?.syncState()
     }
 
-    func updateCatalog(_ catalog: StreamCatalog) {
-        self.catalog = catalog
-        liquidGlassPanel?.allStreams = catalog.streams
+    func applyUpdatedCatalog(_ updated: StreamCatalog) {
+        self.catalog = updated
+        liquidGlassPanel?.allStreams = updated.streams
+        // If the currently-playing stream is gone after a remote refresh, swap to
+        // the resolved default and continue playback if we were already playing.
+        if !updated.streams.contains(streamPlayer.currentStream) {
+            let newDefault = DefaultStreamResolver.resolve(
+                catalog: updated,
+                userDefaultId: Settings.shared.defaultStreamId
+            )
+            let wasPlaying = (streamPlayer.state == .playing)
+            streamPlayer.load(stream: newDefault, autoplay: wasPlaying)
+        }
     }
 
     private func setupButton() {
