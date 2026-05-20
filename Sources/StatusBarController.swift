@@ -3,6 +3,7 @@ import AppKit
 final class StatusBarController: NSObject {
     private let statusItem: NSStatusItem
     private let streamPlayer: StreamPlayer
+    private var catalog: StreamCatalog
 
     private var recorderWindow: HotkeyRecorderWindow?
     private var aboutWindow: AboutWindow?
@@ -10,8 +11,9 @@ final class StatusBarController: NSObject {
     private var spinnerView: NSView?
     private var liquidGlassPanel: LiquidGlassMenuPanel?
 
-    init(streamPlayer: StreamPlayer) {
+    init(streamPlayer: StreamPlayer, catalog: StreamCatalog) {
         self.streamPlayer = streamPlayer
+        self.catalog = catalog
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
 
         super.init()
@@ -23,7 +25,17 @@ final class StatusBarController: NSObject {
             self?.liquidGlassPanel?.updatePlayerState(state)
         }
 
+        streamPlayer.onCurrentStreamChange = { [weak self] stream in
+            self?.liquidGlassPanel?.currentStreamId = stream.id
+            self?.updateIcon(for: streamPlayer.state)
+        }
+
         updateIcon(for: .stopped)
+    }
+
+    func updateCatalog(_ catalog: StreamCatalog) {
+        self.catalog = catalog
+        liquidGlassPanel?.allStreams = catalog.streams
     }
 
     private func setupButton() {
@@ -38,6 +50,18 @@ final class StatusBarController: NSObject {
 
         if liquidGlassPanel == nil {
             let panel = LiquidGlassMenuPanel(streamPlayer: streamPlayer)
+            panel.allStreams = catalog.streams
+            panel.currentStreamId = streamPlayer.currentStream.id
+            panel.onSelectStream = { [weak self] stream in
+                self?.streamPlayer.load(stream: stream, autoplay: true)
+            }
+            panel.onSelectRandom = { [weak self] in
+                guard let self else { return }
+                self.streamPlayer.load(stream: RandomPicker.pick(from: self.catalog), autoplay: true)
+            }
+            panel.onOpenStreamLibrary = { [weak self] in
+                self?.openStreamLibrary()
+            }
             panel.onShowAbout = { [weak self] in self?.showAbout() }
             panel.onShowWhatsNew = { [weak self] in self?.showWhatsNew() }
             panel.onConfigureHotkey = { [weak self] in self?.configureHotkey() }
@@ -87,6 +111,11 @@ final class StatusBarController: NSObject {
         window.makeKeyAndOrderFront(nil)
         activateApp()
         recorderWindow = window
+    }
+
+    // T15 will replace this with a real Settings window scrolled to the Stream Library section.
+    private func openStreamLibrary() {
+        NSSound.beep()
     }
 
     @objc private func showAbout() {

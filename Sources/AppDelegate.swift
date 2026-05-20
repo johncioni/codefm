@@ -16,7 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         streamPlayer.volume = Settings.shared.volume
         self.streamPlayer = streamPlayer
 
-        let controller = StatusBarController(streamPlayer: streamPlayer)
+        let controller = StatusBarController(streamPlayer: streamPlayer, catalog: catalog)
         statusBarController = controller
 
         if Settings.shared.playAtStart {

@@ -19,6 +19,7 @@ final class LiquidGlassMenuPanel: NSPanel {
     private let streamPlayer: StreamPlayer
 
     private let nowPlayingCard = NowPlayingCardView()
+    private let streamRow = MenuRow(icon: "music.note.list", label: "—", trail: .keyHint("▾"))
     private let volumeRow = GlassVolumeRow()
     private let playAtStartToggle = ToggleRow(icon: "play.fill", label: "Play at Start")
     private let startAtLoginToggle = ToggleRow(icon: "arrow.right.to.line", label: "Start at Login")
@@ -31,6 +32,16 @@ final class LiquidGlassMenuPanel: NSPanel {
     private var eventMonitorGlobal: Any?
     private var eventMonitorLocal: Any?
     private var statusItemScreenFrame: NSRect = .zero
+
+    var allStreams: [Stream] = [] {
+        didSet { refreshStreamLabel() }
+    }
+    var currentStreamId: String = "" {
+        didSet { refreshStreamLabel() }
+    }
+    var onSelectStream: ((Stream) -> Void)?
+    var onSelectRandom: (() -> Void)?
+    var onOpenStreamLibrary: (() -> Void)?
 
     var onShowAbout: (() -> Void)?
     var onShowWhatsNew: (() -> Void)?
@@ -127,6 +138,14 @@ final class LiquidGlassMenuPanel: NSPanel {
         stack.addSubview(nowPlayingCard)
         cursor += nowPlayingCard.frame.height + gap
 
+        // Stream row (current stream + dropdown chevron)
+        let streamGroup = GroupContainer()
+        streamGroup.set(rows: [streamRow])
+        streamGroup.frame = NSRect(x: 0, y: cursor, width: stack.bounds.width, height: streamGroup.fittingHeight)
+        streamGroup.autoresizingMask = [.width]
+        stack.addSubview(streamGroup)
+        cursor += streamGroup.frame.height + gap
+
         // Volume row
         volumeRow.frame = NSRect(x: 0, y: cursor, width: stack.bounds.width, height: 34)
         volumeRow.autoresizingMask = [.width]
@@ -174,6 +193,10 @@ final class LiquidGlassMenuPanel: NSPanel {
     private func wireActions() {
         nowPlayingCard.onTogglePlayPause = { [weak self] in
             self?.streamPlayer.togglePlayback()
+        }
+
+        streamRow.onClick = { [weak self] in
+            self?.presentStreamMenu()
         }
 
         volumeRow.onVolumeChanged = { [weak self] value in
@@ -226,6 +249,7 @@ final class LiquidGlassMenuPanel: NSPanel {
 
     func syncState() {
         nowPlayingCard.apply(state: streamPlayer.state)
+        refreshStreamLabel()
         volumeRow.setValue(Settings.shared.volume)
         playAtStartToggle.isOn = Settings.shared.playAtStart
         startAtLoginToggle.isOn = LoginItemManager.shared.isEnabled
@@ -242,6 +266,77 @@ final class LiquidGlassMenuPanel: NSPanel {
 
     func updatePlayerState(_ state: PlayerState) {
         nowPlayingCard.apply(state: state)
+    }
+
+    // MARK: - Stream submenu
+
+    func refreshStreamLabel() {
+        let name = allStreams.first(where: { $0.id == currentStreamId })?.displayName
+            ?? streamPlayer.currentStream.displayName
+        streamRow.setLabel(name)
+        streamRow.toolTip = "Switch stream"
+    }
+
+    private func presentStreamMenu() {
+        let menu = NSMenu()
+        let randomItem = NSMenuItem(
+            title: "🎲  Random",
+            action: #selector(handleRandomSelected(_:)),
+            keyEquivalent: ""
+        )
+        randomItem.target = self
+        menu.addItem(randomItem)
+        menu.addItem(NSMenuItem.separator())
+
+        let grouped = Dictionary(grouping: allStreams, by: \.subgenre)
+        let order: [Subgenre] = [.lofi, .jazzhop, .synthwave, .ambient, .brand, .other]
+        for genre in order {
+            guard let group = grouped[genre], !group.isEmpty else { continue }
+            let header = NSMenuItem()
+            header.title = genre.displayName
+            header.isEnabled = false
+            menu.addItem(header)
+            for stream in group.sorted(by: { $0.displayName < $1.displayName }) {
+                let item = NSMenuItem(
+                    title: "    " + stream.displayName,
+                    action: #selector(handleStreamSelected(_:)),
+                    keyEquivalent: ""
+                )
+                item.target = self
+                item.representedObject = stream
+                if stream.id == currentStreamId { item.state = .on }
+                menu.addItem(item)
+            }
+        }
+
+        menu.addItem(NSMenuItem.separator())
+        let openLib = NSMenuItem(
+            title: "Open Stream Library…",
+            action: #selector(handleOpenLibrary(_:)),
+            keyEquivalent: ""
+        )
+        openLib.target = self
+        menu.addItem(openLib)
+
+        menu.popUp(
+            positioning: nil,
+            at: NSPoint(x: 0, y: streamRow.bounds.height),
+            in: streamRow
+        )
+    }
+
+    @objc private func handleRandomSelected(_ sender: NSMenuItem) {
+        onSelectRandom?()
+    }
+
+    @objc private func handleStreamSelected(_ sender: NSMenuItem) {
+        guard let stream = sender.representedObject as? Stream else { return }
+        onSelectStream?(stream)
+    }
+
+    @objc private func handleOpenLibrary(_ sender: NSMenuItem) {
+        close()
+        onOpenStreamLibrary?()
     }
 
     // MARK: - Show / close
@@ -892,6 +987,11 @@ private final class MenuRow: GlassRow {
         pillView.addSubview(pillLabel)
 
         setTrail(trail)
+    }
+
+    func setLabel(_ text: String) {
+        labelField.stringValue = text
+        needsLayout = true
     }
 
     func setTrail(_ trail: MenuRowTrail) {
