@@ -266,15 +266,29 @@ final class LiquidGlassMenuPanel: NSPanel {
 
     func updatePlayerState(_ state: PlayerState) {
         nowPlayingCard.apply(state: state)
+        let nowOffline = (state == .offline)
+        if nowOffline != isStreamOffline {
+            isStreamOffline = nowOffline
+            refreshStreamLabel()
+        }
     }
 
     // MARK: - Stream submenu
 
+    private var isStreamOffline = false
+
     func refreshStreamLabel() {
         let name = allStreams.first(where: { $0.id == currentStreamId })?.displayName
             ?? streamPlayer.currentStream.displayName
-        streamRow.setLabel(name)
-        streamRow.toolTip = "Switch stream"
+        if isStreamOffline {
+            streamRow.setLabel(name)
+            streamRow.setTrailPill("Offline")
+            streamRow.toolTip = "Stream temporarily unavailable — pick another"
+        } else {
+            streamRow.setLabel(name)
+            streamRow.setTrailHint("▾")
+            streamRow.toolTip = "Switch stream"
+        }
     }
 
     private func presentStreamMenu() {
@@ -993,6 +1007,9 @@ private final class MenuRow: GlassRow {
         labelField.stringValue = text
         needsLayout = true
     }
+
+    func setTrailHint(_ text: String) { setTrail(.keyHint(text)) }
+    func setTrailPill(_ text: String) { setTrail(.pill(text)) }
 
     func setTrail(_ trail: MenuRowTrail) {
         self.trail = trail
