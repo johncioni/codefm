@@ -65,6 +65,13 @@ final class SettingsWindow: NSWindowController {
         libraryStack = makeSectionStack(header: "Stream Library")
         populateLibrary()
 
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleStreamHealthChanged),
+            name: .codeFMStreamHealthChanged,
+            object: nil
+        )
+
         startupStack = makeSectionStack(header: "Startup")
         populateStartup()
 
@@ -106,12 +113,16 @@ final class SettingsWindow: NSWindowController {
         row.alignment = .top
         row.spacing = 12
 
+        let unavailable = !StreamHealthMonitor.shared.isAvailable(stream)
+
         let playButton = NSButton(title: "▶︎", target: self, action: #selector(handlePlayStream(_:)))
         playButton.bezelStyle = .rounded
         playButton.identifier = NSUserInterfaceItemIdentifier(stream.id)
+        playButton.isEnabled = !unavailable
 
-        let title = NSTextField(labelWithString: stream.displayName)
+        let title = NSTextField(labelWithString: stream.displayName + (unavailable ? "  •  Unavailable" : ""))
         title.font = .systemFont(ofSize: 13, weight: .medium)
+        title.textColor = unavailable ? .tertiaryLabelColor : .labelColor
 
         let sub = NSTextField(labelWithString: "\(stream.subgenre.displayName)  •  \(stream.providerLabel)")
         sub.font = .systemFont(ofSize: 11)
@@ -278,9 +289,25 @@ final class SettingsWindow: NSWindowController {
 
     private func populateLibrary() {
         libraryStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+
+        let headerRow = NSStackView()
+        headerRow.orientation = .horizontal
+        headerRow.alignment = .centerY
+        headerRow.spacing = 12
+
         let label = NSTextField(labelWithString: "Stream Library")
         label.font = .systemFont(ofSize: 16, weight: .semibold)
-        libraryStack.addArrangedSubview(label)
+        headerRow.addArrangedSubview(label)
+
+        let refresh = NSButton(
+            title: "Refresh availability",
+            target: self,
+            action: #selector(handleRefreshAvailability)
+        )
+        refresh.bezelStyle = .inline
+        refresh.font = .systemFont(ofSize: 11)
+        headerRow.addArrangedSubview(refresh)
+        libraryStack.addArrangedSubview(headerRow)
 
         let order: [Subgenre] = [.lofi, .jazzhop, .synthwave, .ambient, .brand, .other]
         let grouped = Dictionary(grouping: catalog.streams, by: \.subgenre)
@@ -294,5 +321,13 @@ final class SettingsWindow: NSWindowController {
                 libraryStack.addArrangedSubview(makeStreamRow(stream))
             }
         }
+    }
+
+    @objc private func handleRefreshAvailability() {
+        for stream in catalog.streams { StreamHealthMonitor.shared.recheck(stream) }
+    }
+
+    @objc private func handleStreamHealthChanged() {
+        populateLibrary()
     }
 }

@@ -9,7 +9,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let catalog = StreamCatalog.loadAtLaunch { [weak self] refreshed in
             self?.statusBarController?.applyUpdatedCatalog(refreshed)
+            StreamHealthMonitor.shared.checkAll(catalog: refreshed)
         }
+        StreamHealthMonitor.shared.checkAll(catalog: catalog)
 
         let initialStream = DefaultStreamResolver.resolve(
             catalog: catalog,

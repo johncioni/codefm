@@ -21,14 +21,30 @@ final class StatusBarController: NSObject {
         setupButton()
 
         streamPlayer.onStateChange = { [weak self] state in
-            self?.updateIcon(for: state)
-            self?.liquidGlassPanel?.updatePlayerState(state)
+            guard let self else { return }
+            self.updateIcon(for: state)
+            self.liquidGlassPanel?.updatePlayerState(state)
+            switch state {
+            case .offline:
+                StreamHealthMonitor.shared.markUnavailable(streamPlayer.currentStream.id)
+            case .playing:
+                StreamHealthMonitor.shared.markAvailable(streamPlayer.currentStream.id)
+            case .loading, .stopped:
+                break
+            }
         }
 
         streamPlayer.onCurrentStreamChange = { [weak self] stream in
             self?.liquidGlassPanel?.currentStreamId = stream.id
             self?.updateIcon(for: streamPlayer.state)
         }
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleStreamHealthChanged),
+            name: .codeFMStreamHealthChanged,
+            object: nil
+        )
 
         NotificationCenter.default.addObserver(
             self,
@@ -49,6 +65,10 @@ final class StatusBarController: NSObject {
 
     @objc private func handleOpenSettingsLibrary() {
         openSettingsWindow(section: .library)
+    }
+
+    @objc private func handleStreamHealthChanged() {
+        liquidGlassPanel?.allStreams = StreamHealthMonitor.shared.available(in: catalog.streams)
     }
 
     @objc private func handleHotkeyConfigChanged() {
@@ -87,14 +107,17 @@ final class StatusBarController: NSObject {
 
         if liquidGlassPanel == nil {
             let panel = LiquidGlassMenuPanel(streamPlayer: streamPlayer)
-            panel.allStreams = catalog.streams
+            panel.allStreams = StreamHealthMonitor.shared.available(in: catalog.streams)
             panel.currentStreamId = streamPlayer.currentStream.id
             panel.onSelectStream = { [weak self] stream in
                 self?.streamPlayer.load(stream: stream, autoplay: true)
             }
             panel.onSelectRandom = { [weak self] in
                 guard let self else { return }
-                self.streamPlayer.load(stream: RandomPicker.pick(from: self.catalog), autoplay: true)
+                let healthy = StreamHealthMonitor.shared.available(in: self.catalog.streams)
+                let pool = healthy.isEmpty ? self.catalog.streams : healthy
+                let stream = pool.randomElement() ?? self.catalog.streams[0]
+                self.streamPlayer.load(stream: stream, autoplay: true)
             }
             panel.onOpenStreamLibrary = { [weak self] in
                 self?.openStreamLibrary()
