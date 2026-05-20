@@ -56,9 +56,7 @@ final class SettingsWindow: NSWindowController {
         contentStack.translatesAutoresizingMaskIntoConstraints = false
 
         libraryStack = makeSectionStack(header: "Stream Library")
-        for stream in catalog.streams {
-            libraryStack.addArrangedSubview(makeStreamRow(stream))
-        }
+        populateLibrary()
 
         startupStack = makeSectionStack(header: "Startup")  // populated in T16
         generalStack = makeSectionStack(header: "General")  // populated in T17
@@ -165,16 +163,26 @@ final class SettingsWindow: NSWindowController {
         guard let id = sender.identifier?.rawValue else { return }
         settings.defaultStreamId = id
         onSetDefaultStream?(id)
-        rebuildLibrarySection()
+        populateLibrary()
     }
 
-    private func rebuildLibrarySection() {
+    private func populateLibrary() {
         libraryStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         let label = NSTextField(labelWithString: "Stream Library")
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         libraryStack.addArrangedSubview(label)
-        for stream in catalog.streams {
-            libraryStack.addArrangedSubview(makeStreamRow(stream))
+
+        let order: [Subgenre] = [.lofi, .jazzhop, .synthwave, .ambient, .brand, .other]
+        let grouped = Dictionary(grouping: catalog.streams, by: \.subgenre)
+        for genre in order {
+            guard let entries = grouped[genre], !entries.isEmpty else { continue }
+            let header = NSTextField(labelWithString: genre.displayName)
+            header.font = .systemFont(ofSize: 12, weight: .semibold)
+            header.textColor = .secondaryLabelColor
+            libraryStack.addArrangedSubview(header)
+            for stream in entries.sorted(by: { $0.displayName < $1.displayName }) {
+                libraryStack.addArrangedSubview(makeStreamRow(stream))
+            }
         }
     }
 }
