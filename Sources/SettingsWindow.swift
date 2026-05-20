@@ -16,6 +16,9 @@ final class SettingsWindow: NSWindowController {
     private var startupStack: NSStackView!
     private var generalStack: NSStackView!
 
+    private var randomOnLaunchCheckbox: NSButton!
+    private var defaultStreamSummary: NSTextField!
+
     var onSetDefaultStream: ((String?) -> Void)?       // nil = clear (use catalog default)
     var onPlayStream: ((Stream) -> Void)?
 
@@ -58,7 +61,9 @@ final class SettingsWindow: NSWindowController {
         libraryStack = makeSectionStack(header: "Stream Library")
         populateLibrary()
 
-        startupStack = makeSectionStack(header: "Startup")  // populated in T16
+        startupStack = makeSectionStack(header: "Startup")
+        populateStartup()
+
         generalStack = makeSectionStack(header: "General")  // populated in T17
 
         contentStack.addArrangedSubview(libraryStack)
@@ -164,6 +169,52 @@ final class SettingsWindow: NSWindowController {
         settings.defaultStreamId = id
         onSetDefaultStream?(id)
         populateLibrary()
+        refreshDefaultStreamSummary()
+        randomOnLaunchCheckbox?.state = .off
+    }
+
+    private func populateStartup() {
+        startupStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        let label = NSTextField(labelWithString: "Startup")
+        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        startupStack.addArrangedSubview(label)
+
+        randomOnLaunchCheckbox = NSButton(
+            checkboxWithTitle: "Play a random stream on launch",
+            target: self,
+            action: #selector(handleRandomOnLaunchToggled(_:))
+        )
+        randomOnLaunchCheckbox.state =
+            (settings.defaultStreamId == DefaultStreamResolver.randomSentinel) ? .on : .off
+        startupStack.addArrangedSubview(randomOnLaunchCheckbox)
+
+        defaultStreamSummary = NSTextField(labelWithString: "")
+        defaultStreamSummary.font = .systemFont(ofSize: 11)
+        defaultStreamSummary.textColor = .secondaryLabelColor
+        startupStack.addArrangedSubview(defaultStreamSummary)
+
+        refreshDefaultStreamSummary()
+    }
+
+    @objc private func handleRandomOnLaunchToggled(_ sender: NSButton) {
+        if sender.state == .on {
+            settings.defaultStreamId = DefaultStreamResolver.randomSentinel
+        } else if settings.defaultStreamId == DefaultStreamResolver.randomSentinel {
+            // Was "random" — revert to catalog default by clearing the override.
+            settings.defaultStreamId = nil
+        }
+        refreshDefaultStreamSummary()
+        populateLibrary()
+    }
+
+    private func refreshDefaultStreamSummary() {
+        let userId = settings.defaultStreamId
+        if userId == DefaultStreamResolver.randomSentinel {
+            defaultStreamSummary.stringValue = "On launch, a random stream will be picked."
+        } else {
+            let resolved = DefaultStreamResolver.resolve(catalog: catalog, userDefaultId: userId)
+            defaultStreamSummary.stringValue = "On launch: \(resolved.displayName)"
+        }
     }
 
     private func populateLibrary() {
