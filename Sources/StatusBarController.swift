@@ -37,7 +37,18 @@ final class StatusBarController: NSObject {
             object: nil
         )
 
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleOpenSettingsLibrary),
+            name: .codeFMOpenSettingsLibrary,
+            object: nil
+        )
+
         updateIcon(for: .stopped)
+    }
+
+    @objc private func handleOpenSettingsLibrary() {
+        openSettingsWindow(section: .library)
     }
 
     @objc private func handleHotkeyConfigChanged() {

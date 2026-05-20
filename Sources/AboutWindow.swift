@@ -4,7 +4,7 @@ import QuartzCore
 final class AboutWindow: NSWindow {
     init() {
         let w: CGFloat = 420
-        let h: CGFloat = 390
+        let h: CGFloat = 340
 
         super.init(
             contentRect: NSRect(x: 0, y: 0, width: w, height: h),
@@ -80,43 +80,26 @@ final class AboutWindow: NSWindow {
 
         content.addSubview(infoBox)
 
-        // Stream credit link row
-        let linkBoxFrame = NSRect(x: 30, y: 281, width: w - 60, height: 44)
-        let linkBox = NSBox(frame: linkBoxFrame)
-        linkBox.boxType = .custom
-        linkBox.borderColor = .separatorColor
-        linkBox.borderWidth = 1
-        linkBox.cornerRadius = 8
-        linkBox.fillColor = .controlBackgroundColor
-        linkBox.titlePosition = .noTitle
-
-        let ytIcon = NSImageView(frame: NSRect(x: 12, y: 11, width: 22, height: 22))
-        ytIcon.image = Self.youtubeIcon()
-        ytIcon.imageScaling = .scaleProportionallyUpOrDown
-        linkBox.addSubview(ytIcon)
-
-        let streamLabel = NSTextField(labelWithString: "Stream source")
-        streamLabel.font = .systemFont(ofSize: 13)
-        streamLabel.frame = NSRect(x: 38, y: 12, width: 120, height: 18)
-        linkBox.addSubview(streamLabel)
-
-        let linkButton = NSButton(title: "Code FM on YouTube  \u{203A}", target: self, action: #selector(openStream))
-        linkButton.bezelStyle = .inline
-        linkButton.isBordered = false
-        linkButton.font = .systemFont(ofSize: 13)
-        linkButton.contentTintColor = .linkColor
-        linkButton.frame = NSRect(x: linkBoxFrame.width - 210, y: 12, width: 195, height: 18)
-        linkButton.alignment = .right
-        linkBox.addSubview(linkButton)
-
-        content.addSubview(linkBox)
+        // Settings credits link
+        let creditsButton = NSButton(
+            title: "Stream sources & credits in Settings \u{2192} Stream Library",
+            target: self,
+            action: #selector(handleOpenCredits)
+        )
+        creditsButton.bezelStyle = .inline
+        creditsButton.isBordered = false
+        creditsButton.font = .systemFont(ofSize: 12)
+        creditsButton.contentTintColor = .linkColor
+        creditsButton.alignment = .center
+        creditsButton.frame = NSRect(x: 0, y: 285, width: w, height: 18)
+        content.addSubview(creditsButton)
 
         // Footer
         let footer = NSTextField(labelWithString: "\u{00A9} 2026 \u{00B7} Made with love in West Palm Beach \u{1F334}")
         footer.font = .systemFont(ofSize: 11)
         footer.textColor = .tertiaryLabelColor
         footer.alignment = .center
-        footer.frame = NSRect(x: 0, y: 364, width: w, height: 16)
+        footer.frame = NSRect(x: 0, y: 312, width: w, height: 16)
         content.addSubview(footer)
 
         self.contentView = content
@@ -128,30 +111,13 @@ final class AboutWindow: NSWindow {
         makeFirstResponder(nil)
     }
 
-    @objc private func openStream() {
-        // T11: the old `StreamPlayer.videoID` static is gone. AboutWindow has no
-        // stream context plumbed in; hardcode the Claude FM channel link until
-        // T18 redesigns this dialog to either drop the link or use the current stream.
-        guard let url = URL(string: "https://www.youtube.com/live/YmQ7jRgf4f0") else { return }
-        NSWorkspace.shared.open(url)
+    @objc private func handleOpenCredits() {
+        NotificationCenter.default.post(name: .codeFMOpenSettingsLibrary, object: nil)
     }
+}
 
-    private static func youtubeIcon() -> NSImage {
-        let size = NSSize(width: 22, height: 22)
-        return NSImage(size: size, flipped: false) { _ in
-            let path = NSBezierPath(roundedRect: NSRect(x: 1, y: 4, width: 20, height: 14), xRadius: 3, yRadius: 3)
-            NSColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0).setFill()
-            path.fill()
-            let triangle = NSBezierPath()
-            triangle.move(to: NSPoint(x: 9, y: 7))
-            triangle.line(to: NSPoint(x: 9, y: 15))
-            triangle.line(to: NSPoint(x: 15, y: 11))
-            triangle.close()
-            NSColor.white.setFill()
-            triangle.fill()
-            return true
-        }
-    }
+extension Notification.Name {
+    static let codeFMOpenSettingsLibrary = Notification.Name("CodeFMOpenSettingsLibrary")
 }
 
 private final class VinylRecordView: NSView {
