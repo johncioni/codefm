@@ -14,6 +14,39 @@
       "providerLabel": "YouTube"
     },
     {
+      "id": "lofigirl-piano",
+      "displayName": "Lofi Girl — Piano Radio",
+      "subgenre": "lofi",
+      "type": "youtube_live",
+      "videoId": "N0snMcR6aaA",
+      "channelLiveUrl": "https://www.youtube.com/channel/UCc5afI6TobiZjRke2sYBDPA/live",
+      "attribution": { "artist": "Lofi Girl", "website": "https://lofigirl.com" },
+      "description": "Calm piano-led lo-fi for focus.",
+      "providerLabel": "YouTube"
+    },
+    {
+      "id": "bootlegboy-sleepy",
+      "displayName": "The Bootleg Boy — Sad & Sleepy Lofi",
+      "subgenre": "lofi",
+      "type": "youtube_live",
+      "videoId": "FWjZ0x2M8og",
+      "channelLiveUrl": "https://www.youtube.com/channel/UC0fiLCwTmAukotCXYnqfj0A/live",
+      "attribution": { "artist": "The Bootleg Boy", "website": "https://www.youtube.com/@thebootlegboy" },
+      "description": "Slow, sleepy lo-fi for late nights.",
+      "providerLabel": "YouTube"
+    },
+    {
+      "id": "lofi-geek",
+      "displayName": "Lofi Geek — 24/7 Hip Hop Beats",
+      "subgenre": "lofi",
+      "type": "youtube_live",
+      "videoId": "1tJ8sc8I4z0",
+      "channelLiveUrl": "https://www.youtube.com/channel/UCYIsIAWr_kKethkwm-QQ6mQ/live",
+      "attribution": { "artist": "Lofi Geek", "website": "https://www.youtube.com/@lofigeek" },
+      "description": "No-copyright lo-fi beats to study/sleep to.",
+      "providerLabel": "YouTube"
+    },
+    {
       "id": "lofigirl-jazz",
       "displayName": "Lofi Girl — Jazz Lofi",
       "subgenre": "jazzhop",
@@ -22,17 +55,6 @@
       "channelLiveUrl": "https://www.youtube.com/@LofiGirl/live",
       "attribution": { "artist": "Lofi Girl", "website": "https://lofigirl.com" },
       "description": "Mellow jazz-tinged lo-fi for deep work.",
-      "providerLabel": "YouTube"
-    },
-    {
-      "id": "lofigirl-synthwave",
-      "displayName": "Lofi Girl — Synthwave Radio",
-      "subgenre": "synthwave",
-      "type": "youtube_live",
-      "videoId": "4xDzrJKXOOY",
-      "channelLiveUrl": "https://www.youtube.com/@LofiGirl/live",
-      "attribution": { "artist": "Lofi Girl (Synthwave Boy)", "website": "https://lofigirl.com" },
-      "description": "Retro-synth chill for night coding.",
       "providerLabel": "YouTube"
     },
     {
@@ -47,15 +69,46 @@
       "providerLabel": "YouTube"
     },
     {
-      "id": "college-music-live",
-      "displayName": "College Music — 24/7 Live Radio",
-      "subgenre": "lofi",
+      "id": "somafm-sonicuniverse",
+      "displayName": "SomaFM — Sonic Universe",
+      "subgenre": "jazzhop",
+      "type": "direct_audio",
+      "url": "https://somafm.com/sonicuniverse256.pls",
+      "attribution": { "artist": "SomaFM", "website": "https://somafm.com/sonicuniverse/" },
+      "description": "Eclectic, avant-garde jazz from the SomaFM crew.",
+      "providerLabel": "SomaFM"
+    },
+    {
+      "id": "lofigirl-synthwave",
+      "displayName": "Lofi Girl — Synthwave Radio",
+      "subgenre": "synthwave",
       "type": "youtube_live",
-      "videoId": "gmv54pfxk0Q",
-      "channelLiveUrl": "https://www.youtube.com/channel/UCWzZ5TIGoZ6o-KtbGCyhnhg/live",
-      "attribution": { "artist": "College Music", "website": "https://www.collegemusic.com" },
-      "description": "Chilled indie/electronic beats from up-and-coming artists.",
+      "videoId": "4xDzrJKXOOY",
+      "channelLiveUrl": "https://www.youtube.com/@LofiGirl/live",
+      "attribution": { "artist": "Lofi Girl (Synthwave Boy)", "website": "https://lofigirl.com" },
+      "description": "Retro-synth chill for night coding.",
       "providerLabel": "YouTube"
+    },
+    {
+      "id": "the80sguy-darksynth",
+      "displayName": "The 80s Guy — Darksynth AMV Radio",
+      "subgenre": "synthwave",
+      "type": "youtube_live",
+      "videoId": "Nn87x5B26-c",
+      "channelLiveUrl": "https://www.youtube.com/channel/UCJ80_CMnIOrKtMyFbIFIQ7A/live",
+      "attribution": { "artist": "The 80s Guy", "website": "https://www.youtube.com/@The80sGuy" },
+      "description": "Brutal 80s-tinged darksynth beats.",
+      "providerLabel": "YouTube"
+    },
+    {
+      "id": "somafm-u80s",
+      "displayName": "SomaFM — Underground 80s",
+      "subgenre": "synthwave",
+      "type": "direct_audio",
+      "url": "https://somafm.com/u80s256.pls",
+      "attribution": { "artist": "SomaFM", "website": "https://somafm.com/u80s/" },
+      "description": "Early-80s UK synthpop and new wave.",
+      "providerLabel": "SomaFM"
     },
     {
       "id": "somafm-groovesalad",
@@ -95,6 +148,26 @@
       "url": "https://somafm.com/defcon.pls",
       "attribution": { "artist": "SomaFM", "website": "https://somafm.com/defcon/" },
       "description": "Music for hacking — synth-leaning focus fuel.",
+      "providerLabel": "SomaFM"
+    },
+    {
+      "id": "somafm-deepspaceone",
+      "displayName": "SomaFM — Deep Space One",
+      "subgenre": "ambient",
+      "type": "direct_audio",
+      "url": "https://api.somafm.com/deepspaceone.pls",
+      "attribution": { "artist": "SomaFM", "website": "https://somafm.com/deepspaceone/" },
+      "description": "Deep ambient electronic for inner and outer space.",
+      "providerLabel": "SomaFM"
+    },
+    {
+      "id": "somafm-spacestation",
+      "displayName": "SomaFM — Space Station Soma",
+      "subgenre": "ambient",
+      "type": "direct_audio",
+      "url": "https://api.somafm.com/spacestation320.pls",
+      "attribution": { "artist": "SomaFM", "website": "https://somafm.com/spacestation/" },
+      "description": "Spaced-out ambient and mid-tempo electronica.",
       "providerLabel": "SomaFM"
     },
     {

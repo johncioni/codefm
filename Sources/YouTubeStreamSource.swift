@@ -8,7 +8,8 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     private static let bufferingHangTimeout: TimeInterval = 15
     private static let playerSize: CGFloat = 200
 
-    private let videoId: String
+    private let originalVideoId: String
+    private var videoId: String
     private let channelLiveUrl: URL
 
     private var webView: WKWebView?
@@ -31,6 +32,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     }
 
     init(videoId: String, channelLiveUrl: URL) {
+        self.originalVideoId = videoId
         self.videoId = videoId
         self.channelLiveUrl = channelLiveUrl
         super.init()
@@ -111,43 +113,57 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     private func handleLoadFailure() {
         if !didTryChannelLiveFallback {
             didTryChannelLiveFallback = true
-            // Reload using the channel-live page directly; YouTube auto-redirects to current live ID.
-            loadFailed = false
-            isPlayerReady = false
-            cancelPlaybackTimer()
-            cancelBufferTimer()
-            teardownWebView()
-
-            let request = URLRequest(url: channelLiveUrl)
-            let contentController = WKUserContentController()
-            let configuration = WKWebViewConfiguration()
-            configuration.userContentController = contentController
-            configuration.websiteDataStore = .nonPersistent()
-            configuration.mediaTypesRequiringUserActionForPlayback = []
-            configuration.allowsAirPlayForMediaPlayback = false
-            configuration.defaultWebpagePreferences.allowsContentJavaScript = true
-
-            let frame = NSRect(x: 0, y: 0, width: Self.playerSize, height: Self.playerSize)
-            let webView = WKWebView(frame: frame, configuration: configuration)
-            webView.navigationDelegate = self
-            self.webView = webView
-
-            let window = NSWindow(contentRect: frame, styleMask: [.borderless], backing: .buffered, defer: false)
-            window.isReleasedWhenClosed = false
-            window.isExcludedFromWindowsMenu = true
-            window.hasShadow = false
-            window.ignoresMouseEvents = true
-            window.alphaValue = 0
-            window.collectionBehavior = [.canJoinAllSpaces, .stationary]
-            window.contentView = webView
-            window.orderFront(nil)
-            playerWindow = window
-
-            startPlaybackTimer()
-            webView.load(request)
+            resolveCurrentLiveVideoId { [weak self] newId in
+                guard let self else { return }
+                if let newId, newId != self.videoId {
+                    // Reload the iframe player with the resolved videoId so our
+                    // CodeFMPlayer JS shim is still in place.
+                    self.videoId = newId
+                    self.loadFailed = false
+                    self.isPlayerReady = false
+                    self.cancelPlaybackTimer()
+                    self.cancelBufferTimer()
+                    self.teardownWebView()
+                    self.shouldPlayWhenReady = true
+                    self.startPlaybackTimer()
+                    self.loadPlayerIfNeeded()
+                } else {
+                    self.state = .offline
+                }
+            }
             return
         }
         state = .offline
+    }
+
+    /// Fetch the channel/live page and extract the currently-broadcasting videoId.
+    /// Lightweight regex over the HTML — avoids loading the watch page in WKWebView
+    /// (which would lose our CodeFMPlayer JS shim).
+    private func resolveCurrentLiveVideoId(completion: @escaping (String?) -> Void) {
+        var request = URLRequest(url: channelLiveUrl)
+        request.timeoutInterval = 8
+        request.setValue(
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
+            forHTTPHeaderField: "User-Agent"
+        )
+        URLSession.shared.dataTask(with: request) { data, _, _ in
+            let resolved: String? = {
+                guard
+                    let data,
+                    let html = String(data: data, encoding: .utf8)
+                else { return nil }
+                // The current live videoId appears as `"videoId":"XXXXXXXXXXX"` in
+                // the YouTube watch player's initial data blob.
+                let pattern = #""videoId":"([A-Za-z0-9_-]{11})""#
+                guard
+                    let regex = try? NSRegularExpression(pattern: pattern),
+                    let match = regex.firstMatch(in: html, range: NSRange(html.startIndex..., in: html)),
+                    let range = Range(match.range(at: 1), in: html)
+                else { return nil }
+                return String(html[range])
+            }()
+            DispatchQueue.main.async { completion(resolved) }
+        }.resume()
     }
 
     private func startPlaybackTimer() {
