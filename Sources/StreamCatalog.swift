@@ -76,12 +76,20 @@ extension StreamCatalog {
     /// - Triggers a background remote refresh; on success, writes to cache and posts `catalogDidUpdate`.
     static func loadAtLaunch(completion: ((StreamCatalog) -> Void)? = nil) -> StreamCatalog {
         let current: StreamCatalog
-        if let cached = try? loadFromCache() {
+        let cached = try? loadFromCache()
+        let bundled = try? loadBundled()
+
+        // Prefer the cache only when it's at least as fresh as the bundled file.
+        // Without this check, an app-update that brings a fresher streams.json
+        // is masked by yesterday's cache until the background remote refresh
+        // wins the race.
+        if let cached, isCacheFresherThanBundle() {
             current = cached
-        } else if let bundled = try? loadBundled() {
+        } else if let bundled {
             current = bundled
+        } else if let cached {
+            current = cached
         } else {
-            // Bundled is build-required — surface this hard.
             preconditionFailure("Code FM is missing its bundled stream catalog")
         }
 
@@ -92,6 +100,26 @@ extension StreamCatalog {
         return current
     }
 
+    private static func isCacheFresherThanBundle() -> Bool {
+        guard
+            let bundleURL = Bundle.main.url(
+                forResource: bundledResourceName,
+                withExtension: bundledResourceExtension
+            ) ?? Bundle.module.url(
+                forResource: bundledResourceName,
+                withExtension: bundledResourceExtension
+            ),
+            let cacheAttrs = try? FileManager.default.attributesOfItem(atPath: cacheURL.path),
+            let bundleAttrs = try? FileManager.default.attributesOfItem(atPath: bundleURL.path),
+            let cacheDate = cacheAttrs[.modificationDate] as? Date,
+            let bundleDate = bundleAttrs[.modificationDate] as? Date
+        else {
+            // Conservative: if we can't compare, fall through to bundled.
+            return false
+        }
+        return cacheDate >= bundleDate
+    }
+
     private static func loadFromCache() throws -> StreamCatalog {
         let data = try Data(contentsOf: cacheURL)
         return try decode(from: data)
@@ -100,6 +128,10 @@ extension StreamCatalog {
     private static func refreshRemoteInBackground(_ done: @escaping (StreamCatalog?) -> Void) {
         var request = URLRequest(url: remoteURL)
         request.timeoutInterval = 5
+        // GitHub raw sets cache-control: max-age=300 — without bypassing the
+        // local URLCache, the second launch of a session can replay a stale
+        // body and silently drop catalog changes that just shipped.
+        request.cachePolicy = .reloadIgnoringLocalCacheData
         URLSession.shared.dataTask(with: request) { data, response, _ in
             guard
                 let data,
