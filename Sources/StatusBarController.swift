@@ -8,6 +8,7 @@ final class StatusBarController: NSObject {
     private var recorderWindow: HotkeyRecorderWindow?
     private var aboutWindow: AboutWindow?
     private var whatsNewWindow: WhatsNewWindow?
+    private var settingsWindowController: SettingsWindow?
     private var spinnerView: NSView?
     private var liquidGlassPanel: LiquidGlassMenuPanel?
 
@@ -113,9 +114,23 @@ final class StatusBarController: NSObject {
         recorderWindow = window
     }
 
-    // T15 will replace this with a real Settings window scrolled to the Stream Library section.
     private func openStreamLibrary() {
-        NSSound.beep()
+        openSettingsWindow(section: .library)
+    }
+
+    func openSettingsWindow(section: SettingsSection) {
+        if settingsWindowController == nil {
+            let win = SettingsWindow(catalog: catalog, settings: .shared, player: streamPlayer)
+            win.onPlayStream = { [weak self] stream in
+                self?.streamPlayer.load(stream: stream, autoplay: true)
+            }
+            win.onSetDefaultStream = { _ in /* persisted by the window directly */ }
+            settingsWindowController = win
+        }
+        settingsWindowController?.scroll(to: section)
+        settingsWindowController?.showWindow(nil)
+        settingsWindowController?.window?.makeKeyAndOrderFront(nil)
+        activateApp()
     }
 
     @objc private func showAbout() {
