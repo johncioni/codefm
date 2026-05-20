@@ -129,7 +129,10 @@ final class AboutWindow: NSWindow {
     }
 
     @objc private func openStream() {
-        guard let url = URL(string: "https://www.youtube.com/live/\(StreamPlayer.videoID)") else { return }
+        // T11: the old `StreamPlayer.videoID` static is gone. AboutWindow has no
+        // stream context plumbed in; hardcode the Claude FM channel link until
+        // T18 redesigns this dialog to either drop the link or use the current stream.
+        guard let url = URL(string: "https://www.youtube.com/live/YmQ7jRgf4f0") else { return }
         NSWorkspace.shared.open(url)
     }
 

@@ -134,6 +134,8 @@ final class StatusBarController: NSObject {
         // (alpha 0.3) straight to .loading would render the spinner at 30% opacity.
         button.alphaValue = state.opacity
 
+        let label = state.accessibilityLabel(streamName: streamPlayer.currentStream.displayName)
+
         if state == .loading {
             showSpinner(in: button)
         } else {
@@ -141,13 +143,13 @@ final class StatusBarController: NSObject {
             let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .regular)
             let image = NSImage(
                 systemSymbolName: state.symbolName,
-                accessibilityDescription: state.accessibilityLabel
+                accessibilityDescription: label
             )?.withSymbolConfiguration(config)
             image?.isTemplate = true
             button.image = image
         }
 
-        button.toolTip = state.accessibilityLabel
+        button.toolTip = label
     }
 
     private func showSpinner(in button: NSStatusBarButton) {

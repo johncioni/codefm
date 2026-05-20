@@ -24,16 +24,12 @@ enum PlayerState {
         }
     }
 
-    var accessibilityLabel: String {
+    func accessibilityLabel(streamName: String) -> String {
         switch self {
-        case .stopped:
-            return "Code FM — Stopped"
-        case .loading:
-            return "Code FM — Loading"
-        case .playing:
-            return "Code FM — Playing"
-        case .offline:
-            return "Code FM — Offline"
+        case .stopped: return "\(streamName) — Stopped"
+        case .loading: return "\(streamName) — Loading"
+        case .playing: return "\(streamName) — Playing"
+        case .offline: return "\(streamName) — Offline"
         }
     }
 }

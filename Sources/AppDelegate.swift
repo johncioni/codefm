@@ -7,7 +7,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         Settings.shared.registerDefaults()
 
-        let streamPlayer = StreamPlayer()
+        // T11 temporary wiring — T19 will replace this with full loadAtLaunch +
+        // user-default-resolution (cache/remote precedence and persisted choice).
+        let catalog = try! StreamCatalog.loadBundled()
+        let initialStream = catalog.stream(withId: catalog.defaultStreamId) ?? catalog.streams.first!
+
+        let streamPlayer = StreamPlayer(initialStream: initialStream)
         streamPlayer.volume = Settings.shared.volume
         self.streamPlayer = streamPlayer
 
