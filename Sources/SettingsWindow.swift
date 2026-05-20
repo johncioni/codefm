@@ -83,15 +83,22 @@ final class SettingsWindow: NSWindowController {
         contentStack.addArrangedSubview(generalStack)
 
         let documentView = NSView()
+        documentView.translatesAutoresizingMaskIntoConstraints = false
         documentView.addSubview(contentStack)
         NSLayoutConstraint.activate([
             contentStack.leadingAnchor.constraint(equalTo: documentView.leadingAnchor),
             contentStack.trailingAnchor.constraint(equalTo: documentView.trailingAnchor),
             contentStack.topAnchor.constraint(equalTo: documentView.topAnchor),
             contentStack.bottomAnchor.constraint(equalTo: documentView.bottomAnchor),
-            documentView.widthAnchor.constraint(equalToConstant: 520),
         ])
         scroll.documentView = documentView
+        // Track the clip view's width so the document always fills the scroll
+        // view horizontally — without this the documentView is 0pt wide and the
+        // whole window looks blank.
+        NSLayoutConstraint.activate([
+            documentView.widthAnchor.constraint(equalTo: scroll.contentView.widthAnchor),
+        ])
+
         window?.contentView = scroll
     }
 

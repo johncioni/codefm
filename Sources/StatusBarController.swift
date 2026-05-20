@@ -177,29 +177,27 @@ final class StatusBarController: NSObject {
             settingsWindowController = win
         }
         settingsWindowController?.scroll(to: section)
-        settingsWindowController?.showWindow(nil)
-        settingsWindowController?.window?.makeKeyAndOrderFront(nil)
         activateApp()
+        settingsWindowController?.window?.makeKeyAndOrderFront(nil)
     }
 
     @objc private func showAbout() {
         if aboutWindow == nil { aboutWindow = AboutWindow() }
-        aboutWindow?.makeKeyAndOrderFront(nil)
         activateApp()
+        aboutWindow?.makeKeyAndOrderFront(nil)
     }
 
     @objc private func showWhatsNew() {
         if whatsNewWindow == nil { whatsNewWindow = WhatsNewWindow() }
-        whatsNewWindow?.makeKeyAndOrderFront(nil)
         activateApp()
+        whatsNewWindow?.makeKeyAndOrderFront(nil)
     }
 
     private func activateApp() {
-        if #available(macOS 14.0, *) {
-            NSApp.activate()
-        } else {
-            NSApp.activate(ignoringOtherApps: true)
-        }
+        // Always pass ignoringOtherApps: true — for an LSUIElement (menubar-only)
+        // app, the macOS 14+ flagless NSApp.activate() often refuses to bring our
+        // window forward over another regular app, leaving the window behind.
+        NSApp.activate(ignoringOtherApps: true)
     }
 
     @discardableResult
