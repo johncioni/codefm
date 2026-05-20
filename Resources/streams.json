@@ -180,6 +180,28 @@
       "attribution": { "artist": "Anthropic", "website": "https://claude.com" },
       "description": "Music for thinking and building.",
       "providerLabel": "YouTube"
+    },
+    {
+      "id": "pixar-soul-lofi",
+      "displayName": "Pixar LoFi — Soul's Half Note Jazz Club",
+      "subgenre": "brand",
+      "type": "youtube_live",
+      "videoId": "LoH-5aZBJtc",
+      "channelLiveUrl": "https://www.youtube.com/channel/UC_IRYSp4auq7hKLvziWVH6w/live",
+      "attribution": { "artist": "Pixar", "website": "https://www.pixar.com" },
+      "description": "Looped jazz-club ambience from Pixar's Soul.",
+      "providerLabel": "YouTube"
+    },
+    {
+      "id": "monstercat-silk",
+      "displayName": "Monstercat Silk — Deep & Melodic House",
+      "subgenre": "brand",
+      "type": "youtube_live",
+      "videoId": "WsDyRAPFBC8",
+      "channelLiveUrl": "https://www.youtube.com/channel/UCX4sShAQf01LYjYQhG2ZgKg/live",
+      "attribution": { "artist": "Monstercat Silk", "website": "https://www.monstercat.com" },
+      "description": "Deep, melodic house from Monstercat's chill sublabel.",
+      "providerLabel": "YouTube"
     }
   ]
 }
