@@ -190,6 +190,7 @@ final class SettingsWindow: NSWindowController {
     @objc private func handleSetDefault(_ sender: NSButton) {
         guard let id = sender.identifier?.rawValue else { return }
         settings.defaultStreamId = id
+        settings.lastNonRandomStreamId = id
         onSetDefaultStream?(id)
         populateLibrary()
         refreshDefaultStreamSummary()
@@ -221,10 +222,15 @@ final class SettingsWindow: NSWindowController {
 
     @objc private func handleRandomOnLaunchToggled(_ sender: NSButton) {
         if sender.state == .on {
+            // Preserve the user's specific choice so toggling off can restore it.
+            if let prior = settings.defaultStreamId,
+               prior != DefaultStreamResolver.randomSentinel {
+                settings.lastNonRandomStreamId = prior
+            }
             settings.defaultStreamId = DefaultStreamResolver.randomSentinel
         } else if settings.defaultStreamId == DefaultStreamResolver.randomSentinel {
-            // Was "random" — revert to catalog default by clearing the override.
-            settings.defaultStreamId = nil
+            // Restore the prior specific default; nil falls back to catalog default.
+            settings.defaultStreamId = settings.lastNonRandomStreamId
         }
         refreshDefaultStreamSummary()
         populateLibrary()

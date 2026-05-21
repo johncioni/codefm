@@ -26,10 +26,10 @@ final class StreamPlayer {
         rebuildSource(for: initialStream)
     }
 
-    /// Prefetch a no-op (allowed by existing call sites). Forwards to source warm-up where applicable.
+    /// Warm up the source so the first user click feels instant. Sources that have
+    /// no meaningful work to do before `play()` default to a no-op.
     func prefetch() {
-        // YouTubeStreamSource warms up on `play`; direct audio does no work until play.
-        // No-op preserves existing call sites.
+        currentSource?.prefetch()
     }
 
     func togglePlayback() {

@@ -10,4 +10,10 @@ protocol StreamSource: AnyObject {
     func play()
     func stop()
     func dispose()
+    /// Eagerly do work needed to make `play()` feel instant. Optional — default empty.
+    func prefetch()
+}
+
+extension StreamSource {
+    func prefetch() {}
 }

@@ -138,7 +138,7 @@ extension StreamCatalog {
                 let http = response as? HTTPURLResponse, http.statusCode == 200,
                 let catalog = try? decode(from: data)
             else {
-                done(nil)
+                DispatchQueue.main.async { done(nil) }
                 return
             }
             try? data.write(to: cacheURL)

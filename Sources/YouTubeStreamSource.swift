@@ -60,6 +60,13 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
 
     func dispose() { teardownWebView() }
 
+    /// Warm up the WebKit + iframe-API + cueVideoById pipeline without auto-playing.
+    /// Called at launch when playAtStart is false so the first click feels instant.
+    func prefetch() {
+        guard webView == nil else { return }
+        loadPlayerIfNeeded()
+    }
+
     // MARK: - Internal player wiring (moved from old StreamPlayer.swift)
 
     private func playLoadedPlayer() {

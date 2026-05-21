@@ -24,6 +24,7 @@ final class Settings {
         static let hotkeyKeyCode = "hotkeyKeyCode"
         static let hotkeyModifiers = "hotkeyModifiers"
         static let defaultStreamId = "defaultStreamId"      // nil = use catalog default; "random" = random
+        static let lastNonRandomStreamId = "lastNonRandomStreamId"
     }
 
     func registerDefaults() {
@@ -42,6 +43,16 @@ final class Settings {
         set {
             if let newValue { defaults.set(newValue, forKey: Keys.defaultStreamId) }
             else { defaults.removeObject(forKey: Keys.defaultStreamId) }
+        }
+    }
+
+    /// Remembers the user's last specific (non-random) default so toggling
+    /// "Play a random stream on launch" off can restore it. Spec §8.2.
+    var lastNonRandomStreamId: String? {
+        get { defaults.string(forKey: Keys.lastNonRandomStreamId) }
+        set {
+            if let newValue { defaults.set(newValue, forKey: Keys.lastNonRandomStreamId) }
+            else { defaults.removeObject(forKey: Keys.lastNonRandomStreamId) }
         }
     }
 

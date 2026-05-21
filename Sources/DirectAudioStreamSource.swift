@@ -42,6 +42,10 @@ final class DirectAudioStreamSource: NSObject, StreamSource {
     }
 
     func stop() {
+        // Cancel any in-flight playlist resolve; otherwise its completion
+        // handler builds a fresh AVPlayer and resumes playback after stop.
+        resolveTask?.cancel()
+        resolveTask = nil
         player?.pause()
         cancelBufferTimer()
         state = .stopped
@@ -99,6 +103,9 @@ final class DirectAudioStreamSource: NSObject, StreamSource {
     // MARK: - AVPlayer
 
     private func startPlayback(with url: URL) {
+        // Belt-and-suspenders: if stop() ran while the resolve completion was
+        // already dispatched to main, don't construct a new AVPlayer.
+        guard state != .stopped else { return }
         let item = AVPlayerItem(url: url)
         let player = AVPlayer(playerItem: item)
         player.volume = Settings.clampedVolume(volume)
@@ -153,8 +160,12 @@ enum PLSParser {
     /// Returns the first usable stream URL from a PLS or M3U playlist body.
     static func firstStreamURL(in body: String) -> URL? {
         let trimmed = body.trimmingCharacters(in: .whitespacesAndNewlines)
+        // CRLF is a single Character in Swift, so `split(separator: "\n")` would
+        // never match HTTP-normative line endings. `components(separatedBy: .newlines)`
+        // handles CR, LF, and CRLF uniformly.
+        let lines = trimmed.components(separatedBy: .newlines)
         if trimmed.lowercased().contains("[playlist]") || trimmed.lowercased().contains("file1=") {
-            for line in trimmed.split(separator: "\n", omittingEmptySubsequences: true) {
+            for line in lines {
                 let s = line.trimmingCharacters(in: .whitespaces)
                 if let range = s.range(of: "^File\\d+=", options: .regularExpression) {
                     let urlString = String(s[range.upperBound...])
@@ -165,7 +176,7 @@ enum PLSParser {
             }
         }
         // Treat as M3U / plain list: first non-comment, non-empty line that parses as URL.
-        for line in trimmed.split(separator: "\n", omittingEmptySubsequences: true) {
+        for line in lines {
             let s = line.trimmingCharacters(in: .whitespaces)
             if s.isEmpty || s.hasPrefix("#") { continue }
             if let url = URL(string: s), url.scheme?.hasPrefix("http") == true {
