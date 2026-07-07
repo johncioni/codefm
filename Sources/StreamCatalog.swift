@@ -17,7 +17,7 @@ extension StreamCatalog {
     static let bundledResourceExtension = "json"
 
     private static let remoteURL = URL(string:
-        "https://raw.githubusercontent.com/apparelmagic-johnc/codefm/main/Resources/streams.json"
+        "https://raw.githubusercontent.com/johncioni/codefm/main/Resources/streams.json"
     )!
 
     static func loadBundled() throws -> StreamCatalog {

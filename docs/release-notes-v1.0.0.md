@@ -58,7 +58,7 @@ and choose **Open** (the .app is ad-hoc signed, not notarized).
 ## Build from source
 
 ```bash
-git clone https://github.com/apparelmagic-johnc/codefm.git
+git clone https://github.com/johncioni/codefm.git
 cd codefm
 ./Scripts/build-app.sh
 cp -r build/Code\ FM.app /Applications/
