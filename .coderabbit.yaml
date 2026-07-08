@@ -19,6 +19,9 @@ reviews:
     - "!build/**"
     - "!**/*.dSYM/**"
     - "!**/*.xcodeproj/**"
+    - "!**/*.xcworkspace/**"
+    - "!.swiftpm/**"
+    - "!DerivedData/**"
 
   # Swift / AppKit review guidance for this menubar app.
   path_instructions:
@@ -29,6 +32,11 @@ reviews:
         the main thread, retain cycles in escaping closures (prefer [weak self]),
         force-unwraps on network/parse paths, and any newly introduced
         SPM/Homebrew/npm dependency.
+    - path: "Package.swift"
+      instructions: >
+        This project is fully self-contained — system frameworks only. Flag any
+        new package dependency added to the manifest (dependencies / targets);
+        no external SPM packages are allowed.
     - path: "Tests/**/*.swift"
       instructions: >
         XCTest. Prefer deterministic, network-free tests; flag real network
