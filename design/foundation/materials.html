@@ -1,0 +1,97 @@
+<!-- @dsCard group="Foundation" name="Materials" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code FM — Materials</title>
+<style>
+:root{
+  --rust:#c1502a; --rust-dark:#963719;
+  --primary-text:#1d1d1f; --secondary-text:rgba(60,60,67,.6);
+  --glass-fill:rgba(245,245,250,.72); --glass-border:rgba(255,255,255,.6);
+  --surface-fill:rgba(255,255,255,.5);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Monaco,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font); color:var(--primary-text); -webkit-font-smoothing:antialiased; padding:32px;
+  background:
+    radial-gradient(1000px 600px at 15% 10%, #6a7ba8 0, transparent 55%),
+    radial-gradient(900px 700px at 90% 85%, #b06a52 0, transparent 55%),
+    linear-gradient(140deg,#3c4a63,#574055 55%,#2c3242)}
+h1{font-size:22px; font-weight:700; color:#fff; margin-bottom:4px}
+.sub{font-size:13px; color:rgba(255,255,255,.7); margin-bottom:28px}
+.cards{display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start}
+.spec-card{width:300px; background:rgba(255,255,255,.92); border-radius:12px; overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.demo{height:150px; display:flex; align-items:center; justify-content:center; padding:20px;
+  background:
+    radial-gradient(500px 300px at 20% 20%, #7d8fbf 0, transparent 60%),
+    linear-gradient(135deg,#455072,#6b4f63)}
+.recipe{padding:14px 16px}
+.recipe .t{font-size:13px; font-weight:600; margin-bottom:8px}
+.recipe .l{display:flex; justify-content:space-between; gap:10px; font-size:11px; padding:3px 0}
+.recipe .l span:first-child{color:var(--secondary-text)}
+.recipe .l span:last-child{font-family:var(--mono); text-align:right}
+
+/* Live samples */
+.glass{width:220px; padding:14px; border-radius:14px; background:var(--glass-fill);
+  -webkit-backdrop-filter:blur(30px) saturate(180%); backdrop-filter:blur(30px) saturate(180%);
+  border:.5px solid var(--glass-border); box-shadow:0 12px 40px rgba(0,0,0,.3); position:relative}
+.glass::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:var(--glass-border);border-radius:14px 14px 0 0}
+.glass .inner{height:44px; border-radius:8px; background:var(--surface-fill);
+  display:flex; align-items:center; padding:0 12px; font-size:13px; color:var(--primary-text)}
+.cardgrad{width:220px; height:60px; border-radius:10px; position:relative; overflow:hidden;
+  background:linear-gradient(135deg,rgba(193,80,42,.97),rgba(150,55,25,.97))}
+.cardgrad::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:rgba(255,255,255,.22)}
+.cardgrad span{position:absolute; inset:0; display:flex; align-items:center; padding:0 14px;
+  color:#fff; font-size:13px; font-weight:600}
+</style>
+</head>
+<body>
+  <h1>Materials</h1>
+  <div class="sub">The Liquid Glass surfaces — <code>NSVisualEffectView(.popover, behindWindow)</code> plus a white wash, recreated for the web with <code>backdrop-filter</code>.</div>
+
+  <div class="cards">
+    <div class="spec-card">
+      <div class="demo"><div class="glass"><div class="inner">Frosted panel</div></div></div>
+      <div class="recipe">
+        <div class="t">Liquid Glass panel</div>
+        <div class="l"><span>fill</span><span>rgba(245,245,250,.72)</span></div>
+        <div class="l"><span>backdrop</span><span>blur(30px) saturate(180%)</span></div>
+        <div class="l"><span>border</span><span>.5px rgba(255,255,255,.6)</span></div>
+        <div class="l"><span>top highlight</span><span>1px rgba(255,255,255,.6)</span></div>
+        <div class="l"><span>radius</span><span>14px continuous</span></div>
+      </div>
+    </div>
+
+    <div class="spec-card">
+      <div class="demo" style="background:linear-gradient(135deg,#455072,#6b4f63)">
+        <div style="width:220px;padding:14px;border-radius:14px;background:rgba(245,245,250,.72);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px)">
+          <div style="height:44px;border-radius:8px;background:rgba(255,255,255,.5);display:flex;align-items:center;padding:0 12px;font-size:13px">Inset surface</div>
+        </div>
+      </div>
+      <div class="recipe">
+        <div class="t">Inset surface (groups, volume)</div>
+        <div class="l"><span>fill</span><span>rgba(255,255,255,.5)</span></div>
+        <div class="l"><span>radius</span><span>8px continuous</span></div>
+        <div class="l"><span>row hover</span><span>rgba(0,0,0,.05)</span></div>
+        <div class="l"><span>divider</span><span>.5px rgba(0,0,0,.06)</span></div>
+      </div>
+    </div>
+
+    <div class="spec-card">
+      <div class="demo"><div class="cardgrad"><span>Now Playing gradient</span></div></div>
+      <div class="recipe">
+        <div class="t">Now Playing card</div>
+        <div class="l"><span>gradient</span><span>135°</span></div>
+        <div class="l"><span>from</span><span>rgba(193,80,42,.97)</span></div>
+        <div class="l"><span>to</span><span>rgba(150,55,25,.97)</span></div>
+        <div class="l"><span>top highlight</span><span>1px rgba(255,255,255,.22)</span></div>
+        <div class="l"><span>radius</span><span>10px continuous</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

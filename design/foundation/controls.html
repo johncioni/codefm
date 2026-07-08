@@ -1,0 +1,128 @@
+<!-- @dsCard group="Foundation" name="Controls" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code FM — Controls</title>
+<style>
+:root{
+  --rust:#c1502a; --rust-light:#d96a40; --muted-grey:#6e6e73;
+  --primary-text:#1d1d1f; --secondary-text:rgba(60,60,67,.6);
+  --dot-playing:#5eff8e; --dot-loading:#ffc850; --dot-stopped:#ff453a; --dot-offline:#ff6e5a;
+  --system-green:#34c759; --system-blue:#007aff; --system-orange:#ff9500;
+  --surface-fill:rgba(255,255,255,.7);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Monaco,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font); color:var(--primary-text); -webkit-font-smoothing:antialiased; padding:32px;
+  background:linear-gradient(135deg,#e9eaef,#dfe1e8)}
+h1{font-size:22px; font-weight:700; margin-bottom:4px}
+.sub{font-size:13px; color:var(--secondary-text); margin-bottom:24px}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px}
+.cell{background:rgba(255,255,255,.85); border:1px solid rgba(0,0,0,.08); border-radius:12px; padding:18px;
+  display:flex; flex-direction:column; gap:14px}
+.cell h2{font-size:11px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; color:var(--secondary-text)}
+.demo{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+.cap{font-size:11px; color:var(--secondary-text); font-family:var(--mono)}
+.stack{display:flex; flex-direction:column; gap:6px}
+
+/* Toggle */
+.toggle{width:30px; height:18px; border-radius:9px; background:rgba(0,0,0,.18); position:relative}
+.toggle::after{content:"";position:absolute;top:1px;left:1px;width:16px;height:16px;border-radius:8px;background:#fff;box-shadow:0 -1px 2px rgba(0,0,0,.25)}
+.toggle.on{background:var(--system-green)} .toggle.on::after{left:13px}
+
+/* Play button */
+.playbtn{width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 -1px 3px rgba(0,0,0,.25),0 1px 3px rgba(0,0,0,.18)}
+.playbtn svg{width:16px;height:16px;fill:var(--rust)}
+
+/* Slider */
+.slider{position:relative;width:150px;height:18px;display:flex;align-items:center}
+.slider .track{position:absolute;left:7px;right:7px;height:4px;border-radius:2px;background:rgba(0,0,0,.12)}
+.slider .fill{position:absolute;left:7px;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--rust),var(--rust-light))}
+.slider .knob{position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;border:.5px solid rgba(0,0,0,.1);box-shadow:0 -1px 3px rgba(0,0,0,.3);transform:translateX(-50%)}
+
+/* Dots */
+.dot{width:8px;height:8px;border-radius:4px;display:inline-block}
+.dotrow{display:flex;align-items:center;gap:8px;font-size:12px}
+
+/* Menu row */
+.mrow{width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;background:var(--surface-fill);border-radius:8px}
+.mrow .ic{width:14px;height:14px;color:var(--muted-grey)} .mrow .ic svg{width:14px;height:14px;fill:currentColor}
+.mrow .label{flex:1;font-size:13px}
+.mrow .hint{font-size:13px;color:var(--secondary-text)}
+
+/* Pill + badges */
+.pill{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--rust);background:rgba(193,80,42,.15);border-radius:8px;padding:2px 6px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;border-radius:4px;padding:3px 8px;letter-spacing:.3px}
+.badge .bd{width:6px;height:6px;border-radius:50%}
+.b-fixed{background:rgba(52,199,89,.1);color:var(--system-green)} .b-fixed .bd{background:var(--system-green)}
+.b-improved{background:rgba(0,122,255,.1);color:var(--system-blue)} .b-improved .bd{background:var(--system-blue)}
+.b-new{background:rgba(255,149,0,.1);color:var(--system-orange)} .b-new .bd{background:var(--system-orange)}
+.b-latest{background:rgba(255,149,0,.1);color:var(--system-orange)}
+</style>
+</head>
+<body>
+  <h1>Controls</h1>
+  <div class="sub">Interactive elements, drawn from the AppKit custom cells &amp; views.</div>
+
+  <div class="grid">
+    <div class="cell">
+      <h2>Toggle pill</h2>
+      <div class="demo">
+        <div class="stack" style="align-items:center"><div class="toggle"></div><span class="cap">off</span></div>
+        <div class="stack" style="align-items:center"><div class="toggle on"></div><span class="cap">on</span></div>
+      </div>
+      <div class="cap">30×18 · knob 16 · green #34C759</div>
+    </div>
+
+    <div class="cell">
+      <h2>Circular play button</h2>
+      <div class="demo">
+        <div class="stack" style="align-items:center"><div class="playbtn"><svg viewBox="0 0 16 16"><path d="M4 3.2v9.6c0 .5.55.8.98.54l7.5-4.8a.64.64 0 0 0 0-1.08l-7.5-4.8A.64.64 0 0 0 4 3.2z" transform="translate(1)"/></svg></div><span class="cap">play</span></div>
+        <div class="stack" style="align-items:center"><div class="playbtn"><svg viewBox="0 0 16 16"><path d="M4.5 3h2.2v10H4.5zM9.3 3h2.2v10H9.3z"/></svg></div><span class="cap">pause</span></div>
+      </div>
+      <div class="cap">36 circle · white · rust glyph</div>
+    </div>
+
+    <div class="cell">
+      <h2>Volume slider</h2>
+      <div class="demo">
+        <div class="slider"><div class="track"></div><div class="fill" style="width:calc((100% - 14px)*.6)"></div><div class="knob" style="left:calc(7px + (100% - 14px)*.6)"></div></div>
+        <span class="cap">60%</span>
+      </div>
+      <div class="cap">track 4 · rust→light fill · knob 14</div>
+    </div>
+
+    <div class="cell">
+      <h2>Status dots</h2>
+      <div class="stack">
+        <span class="dotrow"><span class="dot" style="background:var(--dot-playing);box-shadow:0 0 4px var(--dot-playing)"></span>Now Playing</span>
+        <span class="dotrow"><span class="dot" style="background:var(--dot-loading);box-shadow:0 0 4px var(--dot-loading)"></span>Loading…</span>
+        <span class="dotrow"><span class="dot" style="background:var(--dot-stopped);box-shadow:0 0 4px var(--dot-stopped)"></span>Stopped</span>
+        <span class="dotrow"><span class="dot" style="background:var(--dot-offline);box-shadow:0 0 4px var(--dot-offline)"></span>Offline</span>
+      </div>
+    </div>
+
+    <div class="cell">
+      <h2>Menu row</h2>
+      <div class="mrow"><span class="ic"><svg viewBox="0 0 16 16"><path d="M10.5 2a3.5 3.5 0 0 0-3.4 4.4L2 11.5V14h2.5v-1.6h1.6v-1.6h1.6L9.6 9.4A3.5 3.5 0 1 0 10.5 2zm.9 3.3a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg></span><span class="label">Configure Hotkey</span><span class="hint">⇧⌘P</span></div>
+      <div class="mrow"><span class="ic"><svg viewBox="0 0 16 16"><path d="M2 3h9a1 1 0 0 1 1 1v8a1.5 1.5 0 0 0 1.5 1.5H4A2 2 0 0 1 2 11.5z"/></svg></span><span class="label">What's New</span><span class="pill">1.3.2</span></div>
+    </div>
+
+    <div class="cell">
+      <h2>Version pill &amp; badges</h2>
+      <div class="demo">
+        <span class="pill">1.3.2</span>
+        <span class="badge b-latest">LATEST</span>
+      </div>
+      <div class="demo">
+        <span class="badge b-fixed"><span class="bd"></span>FIXED</span>
+        <span class="badge b-improved"><span class="bd"></span>IMPROVED</span>
+        <span class="badge b-new"><span class="bd"></span>NEW</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

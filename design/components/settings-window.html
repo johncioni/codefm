@@ -1,0 +1,175 @@
+<!-- @dsCard group="Components" name="Settings Window" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code FM — Settings</title>
+<style>
+:root{
+  --window-bg:#ececee; --separator:rgba(0,0,0,.1);
+  --label:#1d1d1f; --secondary-label:rgba(60,60,67,.6); --tertiary-label:rgba(60,60,67,.3);
+  --blue:#007aff; --control-border:rgba(0,0,0,.18);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font); background:#c9ccd4; -webkit-font-smoothing:antialiased;
+  display:flex; align-items:flex-start; justify-content:center; padding:26px}
+
+.window{width:520px; height:640px; border-radius:10px; background:var(--window-bg);
+  position:relative; overflow:hidden; display:flex; flex-direction:column;
+  box-shadow:0 18px 50px rgba(0,0,0,.3), 0 0 0 .5px rgba(0,0,0,.12)}
+
+/* Standard titlebar */
+.titlebar{height:28px; flex:0 0 auto; position:relative; border-bottom:.5px solid var(--separator);
+  display:flex; align-items:center; justify-content:center}
+.traffic{position:absolute; left:13px; top:8px; display:flex; gap:8px}
+.traffic span{width:12px; height:12px; border-radius:50%}
+.traffic .r{background:#ff5f57} .traffic .y{background:#febc2e} .traffic .g{background:#28c840}
+.title{font-size:13px; font-weight:600; color:var(--label)}
+
+/* Scroll content */
+.scroll{flex:1 1 auto; overflow-y:auto; padding:16px 20px}
+.scroll::-webkit-scrollbar{width:8px}
+.scroll::-webkit-scrollbar-thumb{background:rgba(0,0,0,.25); border-radius:4px}
+.section{margin-bottom:24px}
+.section > h2{font-size:16px; font-weight:600; color:var(--label); margin-bottom:8px}
+.hrow{display:flex; align-items:center; gap:12px; margin-bottom:8px}
+.linkbtn{font-size:11px; color:var(--label); background:rgba(0,0,0,.06); border:.5px solid var(--separator);
+  border-radius:5px; padding:2px 8px; cursor:default}
+
+.genre-hdr{font-size:12px; font-weight:600; color:var(--secondary-label); margin:12px 0 8px}
+
+/* Stream row */
+.stream{display:flex; gap:12px; align-items:flex-start; margin-bottom:14px}
+.playbtn{flex:0 0 auto; width:34px; height:24px; border-radius:6px; background:#fff;
+  border:.5px solid var(--control-border); box-shadow:0 .5px 1px rgba(0,0,0,.12);
+  display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--label)}
+.scol{display:flex; flex-direction:column; gap:2px; min-width:0}
+.stitle{font-size:13px; font-weight:500; color:var(--label)}
+.smeta{font-size:11px; color:var(--secondary-label)}
+.sdesc{font-size:11px; color:var(--secondary-label)}
+.sactions{display:flex; gap:14px; margin-top:2px}
+.credit{font-size:11px; color:var(--label); background:rgba(0,0,0,.05); border-radius:5px; padding:2px 8px}
+.setdefault{font-size:11px; color:var(--secondary-label); background:none; padding:2px 0}
+.setdefault.is-default{color:var(--label); font-weight:500}
+
+/* Checkbox rows */
+.check{display:flex; align-items:center; gap:8px; margin-bottom:8px}
+.box{width:14px; height:14px; border-radius:3.5px; flex:0 0 auto; background:#fff;
+  border:.5px solid var(--control-border); position:relative}
+.box.on{background:var(--blue); border-color:var(--blue)}
+.box.on::after{content:""; position:absolute; left:4.5px; top:1.5px; width:3.5px; height:7px;
+  border:solid #fff; border-width:0 1.6px 1.6px 0; transform:rotate(45deg)}
+.check .clabel{font-size:13px; color:var(--label)}
+.summary{font-size:11px; color:var(--secondary-label); margin:2px 0 0 22px}
+
+/* Hotkey recorder */
+.hotkey{display:flex; align-items:center; gap:8px; margin-top:12px}
+.hotkey .hklabel{font-size:13px; color:var(--label); width:110px}
+.hkbtn{font-size:13px; color:var(--label); background:#fff; border:.5px solid var(--control-border);
+  border-radius:6px; padding:4px 12px; box-shadow:0 .5px 1px rgba(0,0,0,.1)}
+</style>
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+      <div class="title">Code FM — Settings</div>
+    </div>
+
+    <div class="scroll">
+
+      <!-- Stream Library -->
+      <div class="section">
+        <div class="hrow">
+          <h2 style="margin:0">Stream Library</h2>
+          <span class="linkbtn">Refresh availability</span>
+        </div>
+
+        <div class="genre-hdr">Lo-fi</div>
+        <div class="stream">
+          <div class="playbtn">▶︎</div>
+          <div class="scol">
+            <div class="stitle">Lofi Girl — Beats to Relax/Study</div>
+            <div class="smeta">Lo-fi&nbsp; •&nbsp; YouTube</div>
+            <div class="sdesc">The original 24/7 lo-fi study stream.</div>
+            <div class="sactions"><span class="credit">Lofi Girl — lofigirl.com</span><span class="setdefault">☆ Set as default</span></div>
+          </div>
+        </div>
+        <div class="stream">
+          <div class="playbtn">▶︎</div>
+          <div class="scol">
+            <div class="stitle">Lofi Girl — Piano Radio</div>
+            <div class="smeta">Lo-fi&nbsp; •&nbsp; YouTube</div>
+            <div class="sdesc">Calm piano-led lo-fi for focus.</div>
+            <div class="sactions"><span class="credit">Lofi Girl — lofigirl.com</span><span class="setdefault">☆ Set as default</span></div>
+          </div>
+        </div>
+
+        <div class="genre-hdr">Jazzhop</div>
+        <div class="stream">
+          <div class="playbtn">▶︎</div>
+          <div class="scol">
+            <div class="stitle">Chillhop Radio — Jazzy &amp; Lo-fi</div>
+            <div class="smeta">Jazzhop&nbsp; •&nbsp; YouTube</div>
+            <div class="sdesc">Chillhop's flagship jazzy hip-hop radio.</div>
+            <div class="sactions"><span class="credit">Chillhop Music — chillhop.com</span><span class="setdefault">☆ Set as default</span></div>
+          </div>
+        </div>
+
+        <div class="genre-hdr">Ambient</div>
+        <div class="stream">
+          <div class="playbtn">▶︎</div>
+          <div class="scol">
+            <div class="stitle">SomaFM — Groove Salad</div>
+            <div class="smeta">Ambient&nbsp; •&nbsp; SomaFM</div>
+            <div class="sdesc">Chilled ambient downtempo, listener-supported, ad-free.</div>
+            <div class="sactions"><span class="credit">SomaFM — somafm.com</span><span class="setdefault">☆ Set as default</span></div>
+          </div>
+        </div>
+
+        <div class="genre-hdr">Brand</div>
+        <div class="stream">
+          <div class="playbtn">▶︎</div>
+          <div class="scol">
+            <div class="stitle">Claude FM</div>
+            <div class="smeta">Brand&nbsp; •&nbsp; YouTube</div>
+            <div class="sdesc">Music for thinking and building.</div>
+            <div class="sactions"><span class="credit">Anthropic — claude.com</span><span class="setdefault is-default">★ Default</span></div>
+          </div>
+        </div>
+        <div class="stream">
+          <div class="playbtn">▶︎</div>
+          <div class="scol">
+            <div class="stitle">Pixar LoFi — Soul's Half Note Jazz Club</div>
+            <div class="smeta">Brand&nbsp; •&nbsp; YouTube</div>
+            <div class="sdesc">Looped jazz-club ambience from Pixar's Soul.</div>
+            <div class="sactions"><span class="credit">Pixar — pixar.com</span><span class="setdefault">☆ Set as default</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Startup -->
+      <div class="section">
+        <h2>Startup</h2>
+        <div class="check"><span class="box"></span><span class="clabel">Play a random stream on launch</span></div>
+        <div class="summary">On launch: Claude FM</div>
+      </div>
+
+      <!-- General -->
+      <div class="section">
+        <h2>General</h2>
+        <div class="check"><span class="box"></span><span class="clabel">Start playing when Code FM launches</span></div>
+        <div class="check"><span class="box on"></span><span class="clabel">Launch Code FM at login</span></div>
+        <div class="check"><span class="box on"></span><span class="clabel">Enable global play/pause hotkey</span></div>
+        <div class="hotkey">
+          <span class="hklabel">Global Hotkey:</span>
+          <span class="hkbtn">⇧⌘P</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

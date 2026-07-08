@@ -1,0 +1,71 @@
+<!-- @dsCard group="Foundation" name="Colors" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code FM — Colors</title>
+<style>
+:root{
+  --rust:#c1502a; --rust-dark:#963719; --rust-light:#d96a40;
+  --muted-grey:#6e6e73; --primary-text:#1d1d1f; --secondary-text:rgba(60,60,67,.6);
+  --dot-playing:#5eff8e; --dot-loading:#ffc850; --dot-stopped:#ff453a; --dot-offline:#ff6e5a;
+  --system-green:#34c759; --system-blue:#007aff; --system-orange:#ff9500;
+  --window-bg:#ececee; --control-bg:#ffffff; --separator:rgba(0,0,0,.1);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Monaco,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font); background:#f5f5f7; color:var(--primary-text);
+  -webkit-font-smoothing:antialiased; padding:32px}
+h1{font-size:22px; font-weight:700; margin-bottom:4px}
+.sub{font-size:13px; color:var(--secondary-text); margin-bottom:28px}
+h2{font-size:12px; font-weight:600; letter-spacing:.6px; text-transform:uppercase;
+  color:var(--secondary-text); margin:26px 0 12px}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px}
+.swatch{background:var(--control-bg); border:1px solid var(--separator); border-radius:10px; overflow:hidden}
+.chip{height:64px}
+.meta{padding:10px 12px}
+.name{font-size:12px; font-weight:600}
+.val{font-family:var(--mono); font-size:11px; color:var(--secondary-text); margin-top:2px}
+.checker{background-image:linear-gradient(45deg,#ddd 25%,transparent 25%),linear-gradient(-45deg,#ddd 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ddd 75%),linear-gradient(-45deg,transparent 75%,#ddd 75%);
+  background-size:12px 12px; background-position:0 0,0 6px,6px -6px,-6px 0}
+</style>
+</head>
+<body>
+  <h1>Colors</h1>
+  <div class="sub">From <code>Sources/LiquidGlassMenuPanel.swift</code> · Palette enum + AppKit semantic colors</div>
+
+  <h2>Brand palette</h2>
+  <div class="grid">
+    <div class="swatch"><div class="chip" style="background:var(--rust)"></div><div class="meta"><div class="name">Rust</div><div class="val">#C1502A</div></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--rust-dark)"></div><div class="meta"><div class="name">Rust Dark</div><div class="val">#963719</div></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--rust-light)"></div><div class="meta"><div class="name">Rust Light</div><div class="val">#D96A40</div></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--muted-grey)"></div><div class="meta"><div class="name">Muted Grey</div><div class="val">#6E6E73</div></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--primary-text)"></div><div class="meta"><div class="name">Primary Text</div><div class="val">#1D1D1F</div></div></div>
+    <div class="swatch"><div class="chip checker"><div style="height:100%;background:var(--secondary-text)"></div></div><div class="meta"><div class="name">Secondary Text</div><div class="val">rgba(60,60,67,.6)</div></div></div>
+  </div>
+
+  <h2>Player status dots</h2>
+  <div class="grid">
+    <div class="swatch"><div class="chip" style="background:var(--dot-playing)"></div><div class="meta"><div class="name">Playing</div><div class="val">#5EFF8E</div></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--dot-loading)"></div><div class="meta"><div class="name">Loading</div><div class="val">#FFC850</div></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--dot-stopped)"></div><div class="meta"><div class="name">Stopped</div><div class="val">#FF453A</div></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--dot-offline)"></div><div class="meta"><div class="name">Offline</div><div class="val">#FF6E5A</div></div></div>
+  </div>
+
+  <h2>System accents</h2>
+  <div class="grid">
+    <div class="swatch"><div class="chip" style="background:var(--system-green)"></div><div class="meta"><div class="name">Green · toggle on</div><div class="val">#34C759</div></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--system-blue)"></div><div class="meta"><div class="name">Blue · improved</div><div class="val">#007AFF</div></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--system-orange)"></div><div class="meta"><div class="name">Orange · new/latest</div><div class="val">#FF9500</div></div></div>
+  </div>
+
+  <h2>Window chrome (light)</h2>
+  <div class="grid">
+    <div class="swatch"><div class="chip" style="background:var(--window-bg)"></div><div class="meta"><div class="name">Window BG</div><div class="val">#ECECEE</div></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--control-bg);border-bottom:1px solid var(--separator)"></div><div class="meta"><div class="name">Control BG</div><div class="val">#FFFFFF</div></div></div>
+    <div class="swatch"><div class="chip checker"><div style="height:100%;background:var(--separator)"></div></div><div class="meta"><div class="name">Separator</div><div class="val">rgba(0,0,0,.1)</div></div></div>
+  </div>
+</body>
+</html>

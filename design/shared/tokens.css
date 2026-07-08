@@ -1,0 +1,80 @@
+/* Code FM — design tokens (canonical source of truth)
+ *
+ * Distilled from the Swift/AppKit source:
+ *   Sources/LiquidGlassMenuPanel.swift  (Palette enum + all geometry)
+ *   Sources/SettingsWindow.swift, AboutWindow.swift, WhatsNewWindow.swift
+ *
+ * Each component preview in ../components/ and ../foundation/ inlines a copy of
+ * the :root block below so it renders standalone in the Claude Design pane
+ * (previews can't rely on a shared stylesheet resolving). When you change a
+ * token, change it HERE first, then re-sync the inlined copies. Keep this file
+ * and the app's Palette/geometry constants in lockstep.
+ */
+
+:root {
+  /* ---- Brand palette (Palette enum) ---- */
+  --rust:            #c1502a;   /* rgb(193,80,42)  */
+  --rust-dark:       #963719;   /* rgb(150,55,25)  */
+  --rust-light:      #d96a40;   /* rgb(217,106,64) */
+  --muted-grey:      #6e6e73;   /* rgb(110,110,115) */
+  --primary-text:    #1d1d1f;   /* rgb(29,29,31)   */
+  --secondary-text:  rgba(60, 60, 67, 0.6);
+
+  /* ---- Player status dots ---- */
+  --dot-playing:     #5eff8e;   /* rgb(94,255,142) */
+  --dot-loading:     #ffc850;   /* rgb(255,200,80) */
+  --dot-stopped:     #ff453a;   /* rgb(255,69,58)  */
+  --dot-offline:     #ff6e5a;   /* rgb(255,110,90) */
+
+  /* ---- System accents (AppKit semantic colors) ---- */
+  --system-green:    #34c759;   /* rgb(52,199,89) — toggle ON */
+  --system-blue:     #007aff;   /* .systemBlue — "IMPROVED" tag */
+  --system-orange:   #ff9500;   /* .systemOrange — "NEW"/"LATEST" */
+
+  /* ---- macOS window chrome (light) ---- */
+  --window-bg:       #ececee;   /* windowBackgroundColor (light) */
+  --control-bg:      #ffffff;   /* controlBackgroundColor (light) */
+  --separator:       rgba(0, 0, 0, 0.1);       /* separatorColor */
+  --label:           #1d1d1f;                  /* labelColor */
+  --secondary-label: rgba(60, 60, 67, 0.6);    /* secondaryLabelColor */
+  --tertiary-label:  rgba(60, 60, 67, 0.3);    /* tertiaryLabelColor */
+  --link:            #0068da;                  /* linkColor (light) */
+
+  /* ---- Liquid Glass material (the frosted dropdown) ---- */
+  --glass-radius:      14px;
+  --glass-fill:        rgba(245, 245, 250, 0.72); /* net of popover blur + white wash */
+  --glass-border:      rgba(255, 255, 255, 0.6);  /* 0.5px hairline */
+  --glass-highlight:   rgba(255, 255, 255, 0.6);  /* 1px top inner highlight */
+  --glass-blur:        30px;
+
+  /* Frosted sub-surfaces inside the glass (groups, volume row) */
+  --surface-fill:      rgba(255, 255, 255, 0.5);
+  --surface-radius:    8px;
+  --row-hover:         rgba(0, 0, 0, 0.05);
+  --divider:           rgba(0, 0, 0, 0.06);      /* inset row divider */
+
+  /* ---- Geometry ---- */
+  --panel-width:   320px;
+  --glass-margin:  8px;   /* shadow gutter around the glass */
+  --content-pad:   8px;   /* padding inside the glass */
+  --group-gap:     6px;   /* vertical gap between groups */
+  --row-height:    34px;
+  --pad-x:         12px;  /* horizontal inset inside rows */
+
+  /* Now Playing card */
+  --card-height:      60px;
+  --card-radius:      10px;
+  --card-grad-top:    rgba(193, 80, 42, 0.97);
+  --card-grad-bottom: rgba(150, 55, 25, 0.97);
+  --card-highlight:   rgba(255, 255, 255, 0.22);
+
+  /* Toggle pill */
+  --pill-w:      30px;
+  --pill-h:      18px;
+  --pill-off:    rgba(0, 0, 0, 0.18);
+  --knob:        #ffffff;
+
+  /* ---- Type ---- */
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, monospace;
+}
