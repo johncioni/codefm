@@ -79,12 +79,21 @@ final class StreamHealthMonitor {
     }
 
     /// True when a YouTube watch/live HTML body describes a currently-live,
-    /// playable broadcast. Live streams report `"isLive":true` AND `"status":"OK"`.
-    /// Recorded videos that happen to be playable would have only the second; we
-    /// require both so we don't surface a non-live recording as healthy.
+    /// playable broadcast (`"status":"OK"`).
+    ///
+    /// `"isLive":true` is the authoritative "currently broadcasting" signal and
+    /// wins outright. An explicit `"isLive":false` is an ended broadcast and is
+    /// never live — even though YouTube keeps `"isLiveContent":true` on ended
+    /// streams (it's a persistent classification, not a live flag). Without that
+    /// guard a stale/rotated videoId reads as healthy and the channel-live
+    /// fallback in `probeYouTube` never runs. Only when `isLive` is absent
+    /// entirely do we fall back to `isLiveContent` — some edge responses omit
+    /// `isLive` for an active broadcast.
     static func htmlIndicatesLive(_ html: String) -> Bool {
-        html.contains(#""status":"OK""#)
-            && (html.contains(#""isLive":true"#) || html.contains(#""isLiveContent":true"#))
+        guard html.contains(#""status":"OK""#) else { return false }
+        if html.contains(#""isLive":true"#) { return true }
+        if html.contains(#""isLive":false"#) { return false }
+        return html.contains(#""isLiveContent":true"#)
     }
 
     private func probeYouTube(streamId: String, videoId: String, channelLiveUrl: URL) {
