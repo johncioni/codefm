@@ -1,0 +1,35 @@
+# SwiftLint — CodeRabbit runs this automatically on each PR's changed Swift files.
+#
+# Deliberately conservative starter: opt in to a small set of high-signal
+# correctness/safety rules only (no style, formatting, or line-length rules), so
+# it surfaces real issues instead of a nit-storm. Because CodeRabbit lints the
+# PR diff (not the whole repo), any existing violations appear incrementally as
+# files are touched — fix as you go, then broaden this list over time.
+
+only_rules:
+  # Dangerous constructs
+  - force_cast                          # `as!`
+  - force_try                           # `try!`
+  # Memory / lifecycle (this app is NotificationCenter- and delegate-heavy)
+  - weak_delegate
+  - notification_center_detachment      # observing type must remove itself in deinit
+  - discarded_notification_center_observer  # don't discard the observer token
+  # Optional handling
+  - unused_optional_binding
+  - redundant_optional_initialization
+  # Correctness / clarity
+  - empty_count                         # prefer isEmpty over count == 0
+  - empty_string                        # prefer isEmpty over == ""
+  - toggle_bool                         # x = !x  ->  x.toggle()
+  - for_where
+  - first_where                         # filter{}.first  ->  first(where:)
+  - contains_over_first_not_nil         # first(where:) != nil  ->  contains(where:)
+
+included:
+  - Sources
+  - Tests
+
+excluded:
+  - .build
+  - build
+  - DerivedData
