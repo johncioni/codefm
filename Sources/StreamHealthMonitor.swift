@@ -71,35 +71,60 @@ final class StreamHealthMonitor {
 
     private func probe(_ stream: Stream) {
         switch stream.type {
-        case let .youtubeLive(videoId, _):
-            probeYouTube(streamId: stream.id, videoId: videoId)
+        case let .youtubeLive(videoId, channelLiveUrl):
+            probeYouTube(streamId: stream.id, videoId: videoId, channelLiveUrl: channelLiveUrl)
         case let .directAudio(url):
             probeDirectAudio(streamId: stream.id, url: url)
         }
     }
 
-    private func probeYouTube(streamId: String, videoId: String) {
+    /// True when a YouTube watch/live HTML body describes a currently-live,
+    /// playable broadcast. Live streams report `"isLive":true` AND `"status":"OK"`.
+    /// Recorded videos that happen to be playable would have only the second; we
+    /// require both so we don't surface a non-live recording as healthy.
+    static func htmlIndicatesLive(_ html: String) -> Bool {
+        html.contains(#""status":"OK""#)
+            && (html.contains(#""isLive":true"#) || html.contains(#""isLiveContent":true"#))
+    }
+
+    private func probeYouTube(streamId: String, videoId: String, channelLiveUrl: URL) {
         guard let url = URL(string: "https://www.youtube.com/watch?v=\(videoId)") else {
-            applyResult(streamId, available: false)
+            // Pinned videoId is malformed — go straight to the channel's live endpoint.
+            probeChannelLive(streamId: streamId, channelLiveUrl: channelLiveUrl)
             return
         }
+        fetchIndicatesLive(url: url) { [weak self] live in
+            guard let self else { return }
+            if live {
+                self.applyResult(streamId, available: true)
+            } else {
+                // The pinned videoId is stale/ended (a 24/7 channel rotates its
+                // videoId on every restart, so the id baked into streams.json goes
+                // dead). Before hiding the stream, check the channel's *current*
+                // live broadcast — mirroring the playback-time recovery in
+                // YouTubeStreamSource.resolveCurrentLiveVideoId. Without this, a
+                // live-but-rotated stream disappears from the menu entirely.
+                self.probeChannelLive(streamId: streamId, channelLiveUrl: channelLiveUrl)
+            }
+        }
+    }
+
+    private func probeChannelLive(streamId: String, channelLiveUrl: URL) {
+        fetchIndicatesLive(url: channelLiveUrl) { [weak self] live in
+            self?.applyResult(streamId, available: live)
+        }
+    }
+
+    /// Fetch `url` with the Safari UA and report whether its HTML indicates a live stream.
+    private func fetchIndicatesLive(url: URL, completion: @escaping (Bool) -> Void) {
         var request = URLRequest(url: url)
         request.timeoutInterval = 8
         request.setValue(Self.userAgent, forHTTPHeaderField: "User-Agent")
-        URLSession.shared.dataTask(with: request) { [weak self] data, _, _ in
-            guard let self else { return }
-            let isHealthy: Bool = {
-                guard
-                    let data,
-                    let html = String(data: data, encoding: .utf8)
-                else { return false }
-                // Live streams report `"isLive":true` AND `"status":"OK"`. Recorded
-                // videos that happen to be playable would have only the second; we
-                // require both so we don't surface a non-live recording as healthy.
-                return html.contains(#""status":"OK""#)
-                    && (html.contains(#""isLive":true"#) || html.contains(#""isLiveContent":true"#))
-            }()
-            self.applyResult(streamId, available: isHealthy)
+        URLSession.shared.dataTask(with: request) { data, _, _ in
+            let live = data
+                .flatMap { String(data: $0, encoding: .utf8) }
+                .map(Self.htmlIndicatesLive) ?? false
+            completion(live)
         }.resume()
     }
 
