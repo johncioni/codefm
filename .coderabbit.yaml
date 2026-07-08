@@ -1,0 +1,49 @@
+# CodeRabbit configuration — https://docs.coderabbit.ai/reference/configuration
+# yaml-language-server: $schema=https://storage.googleapis.com/coderabbit_public_assets/schema.v2.json
+#
+# Only settings that differ from CodeRabbit's defaults are listed here.
+language: en-US
+
+reviews:
+  # Surface more findings than the default "chill" profile.
+  profile: assertive
+
+  # Post "Changes Requested" (instead of auto-approving) while actionable
+  # comments are unresolved. Combined with the repo's branch protection
+  # (require conversation resolution), a finding can't be merged past silently.
+  request_changes_workflow: true
+
+  # Don't spend review budget on build output or generated artifacts.
+  path_filters:
+    - "!.build/**"
+    - "!build/**"
+    - "!**/*.dSYM/**"
+    - "!**/*.xcodeproj/**"
+
+  # Swift / AppKit review guidance for this menubar app.
+  path_instructions:
+    - path: "Sources/**/*.swift"
+      instructions: >
+        Native Swift + AppKit menubar app, minimum target macOS 13, no external
+        dependencies allowed (system frameworks only). Flag: UI/AppKit work off
+        the main thread, retain cycles in escaping closures (prefer [weak self]),
+        force-unwraps on network/parse paths, and any newly introduced
+        SPM/Homebrew/npm dependency.
+    - path: "Tests/**/*.swift"
+      instructions: >
+        XCTest. Prefer deterministic, network-free tests; flag real network
+        calls and sleeps.
+
+knowledge_base:
+  # This repo is PUBLIC, so Linear defaults to "auto" (= disabled). Enable it
+  # explicitly so CodeRabbit can use FM ticket context during reviews.
+  linear:
+    usage: enabled
+    team_keys:
+      - FM
+
+chat:
+  integrations:
+    # Same public-repo caveat: enable so `@coderabbitai` can create/link Linear issues.
+    linear:
+      usage: enabled
