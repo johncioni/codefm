@@ -26,8 +26,19 @@ final class StreamHealthMonitorTests: XCTestCase {
     }
 
     func test_isLiveContentAloneCountsAsLive() {
-        // Some edge servers omit isLive but still expose isLiveContent for an active broadcast.
+        // Edge fallback: some responses omit isLive entirely but still expose
+        // isLiveContent for an active broadcast. With no isLive flag either way,
+        // isLiveContent:true is accepted.
         let html = #"{"playabilityStatus":{"status":"OK"},"videoDetails":{"isLiveContent":true}}"#
         XCTAssertTrue(StreamHealthMonitor.htmlIndicatesLive(html))
+    }
+
+    func test_endedReplayWithPersistentLiveContentIsNotHealthy() {
+        // An ended broadcast keeps isLiveContent:true (YouTube's persistent
+        // classification) but flips isLive to false. It must NOT read as live —
+        // otherwise the stale/rotated pinned videoId looks healthy and the
+        // channel-live fallback in probeYouTube never runs. (CodeRabbit finding.)
+        let html = #"{"playabilityStatus":{"status":"OK"},"videoDetails":{"isLive":false,"isLiveContent":true}}"#
+        XCTAssertFalse(StreamHealthMonitor.htmlIndicatesLive(html))
     }
 }
