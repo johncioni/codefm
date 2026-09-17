@@ -39,7 +39,7 @@ swift test                  # unit tests (see caveat below)
 **Required checks:** `ci`, `gitleaks`, `review-evidence`. Local gates before a
 PR: `swift build`, `swift test`, and `Scripts/build-app.sh` green.
 
-**Invariant files (ineligible for the docs/test/size skips; the MODELS.md opus-implementer exception still applies):** `Package.swift` (system frameworks
+**Invariant files (ineligible for the docs/test/size skips):** `Package.swift` (system frameworks
 only — no SPM deps), `Resources/streams.json` (the catalog; the website syncs
 from it), `Resources/Info.plist`, `Resources/CodeFM.entitlements`,
 `Sources/LoginItemManager.swift` (ServiceManagement / start-at-login),
