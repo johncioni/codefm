@@ -4,6 +4,15 @@ Guidance for any coding agent working in this repository. Codex and other
 agents read `AGENTS.md`, which is a symlink to this file — so this is the single
 source of truth. Keep it that way.
 
+## Project memory
+
+`docs/agents-memory/` is the durable, cross-agent memory for this repo
+(rules: `~/.agents/MODELS.md`, "Project memory"). Read both files before the
+first edit. Only the orchestrator writes there, once per task at merge time.
+
+@docs/agents-memory/decisions.md
+@docs/agents-memory/ruled-out.md
+
 ## Project snapshot
 
 **Code FM** is a lightweight macOS menubar app that streams the Code FM live
