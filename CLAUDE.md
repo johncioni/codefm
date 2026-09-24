@@ -8,7 +8,8 @@ source of truth. Keep it that way.
 
 `docs/agents-memory/` is the durable, cross-agent memory for this repo
 (rules: `~/.agents/MODELS.md`, "Project memory"). Read both files before the
-first edit. Only the orchestrator writes there, once per task at merge time.
+first edit. Only the orchestrator writes there, in one reviewed memory PR
+per wave.
 
 @docs/agents-memory/decisions.md
 @docs/agents-memory/ruled-out.md
@@ -53,7 +54,8 @@ only — no SPM deps), `Resources/streams.json` (the catalog; the website syncs
 from it), `Resources/Info.plist`, `Resources/CodeFM.entitlements`,
 `Sources/LoginItemManager.swift` (ServiceManagement / start-at-login),
 `Sources/StreamPlayer.swift` + `Sources/YouTubeStreamSource.swift` (off-screen
-WebKit player), `Scripts/build-app.sh` (ad-hoc signing).
+WebKit player), `Scripts/build-app.sh` (ad-hoc signing),
+`docs/agents-memory/*` (imported into every session).
 
 **Branch protection is strict:** `main` requires the PR branch to be up to
 date. On `mergeStateStatus: BEHIND`, run `gh pr update-branch <n>`, wait for
