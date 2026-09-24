@@ -12,3 +12,4 @@ Sources/YouTubeStreamSource.swift
 Scripts/build-app.sh
 .github/*
 CLAUDE.md
+docs/agents-memory/*
