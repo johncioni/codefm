@@ -43,7 +43,7 @@ swift test                  # unit tests (see caveat below)
 
 ## Review loop
 
-**Roles, models, effort levels, and the review loop are universal:** see `~/.agents/MODELS.md` (role table with default model + effort per role, the orchestrator's per-dispatch selection rule, escalation, and the review loop). This file adds only project-specific rules.
+Launch recipes, terminal hygiene, and worker supervision live in `~/.agents/ORCHESTRATION.md`; roles, models, effort, and the review loop in `~/.agents/MODELS.md`.
 
 **Required checks:** `ci`, `gitleaks`, `review-evidence`. Local gates before a
 PR: `swift build`, `swift test`, and `Scripts/build-app.sh` green.
@@ -61,58 +61,16 @@ the checks to go green again, then merge; if more commits are needed after
 the update, `git pull` in the worktree first — never `--admin`, never a
 force-push (decision 2026-08-30).
 
-## Orca orchestration & worktrees
+## Orca
 
-This repo is managed inside **Orca**. When work touches Orca-tracked state
-(worktrees, spawned agents, terminals), **prefer the `orca` CLI over raw
-`git worktree` or ad-hoc shells** so Orca's graph stays consistent. Use plain
-shell tools only when Orca state does not matter.
+This repo is managed inside **Orca**.
 
-Confirm the runtime is up before orchestration commands:
+New work branches from the repo default base (`origin/main`); stack on the
+current feature branch only when explicitly asked.
 
-```bash
-orca status --json
-orca worktree current --json
-```
-
-**Spawning agents / new work**
-
-- Implementation task: a separate checkout with the implementer the
-  orchestrator chose (`codex` by default, `claude` for the fallback
-  implementer; models and effort in `~/.agents/MODELS.md`):
-  ```bash
-  orca worktree create --name <task> --agent <codex|claude> --prompt "<brief>" --json
-  ```
-- Fresh agent in the *current* checkout for orchestration, review, or
-  analysis only, never implementation (no new checkout):
-  ```bash
-  orca terminal create --worktree active --command "<agent>" --json
-  ```
-- **Independent work:** pass `--no-parent` and omit `--base-branch` so Orca uses
-  the repo default base (`origin/main`). Only stack on the current feature
-  branch when explicitly asked ("branch from current" / stacked work).
-
-**Handoff vs. supervised orchestration**
-
-- **Full handoff** ("hand this off", "give this to another agent/worktree"):
-  deliver the prompt with `worktree create` / `terminal send`, report the new
-  worktree/terminal, then stop. Do **not** create orchestration tasks for a
-  handoff.
-- **Supervised multi-agent** (you monitor, wait, coordinate a DAG, gate
-  decisions): use `orca orchestration …` (send / check / reply / task-create /
-  dispatch / gate-*).
-
-**Checkpoints** — keep the workspace card current at meaningful state changes
-(repro, fix, validation, handoff, blocker):
-
-```bash
-orca worktree set --worktree active --comment "fix implemented; running build" --json
-orca worktree set --worktree active --workspace-status in-review --json
-```
-
-**Do not** run `git worktree add` directly — use `orca worktree create` so the
-checkout, its terminals, and UI state are tracked. Remove with
-`orca worktree rm`, not `git worktree remove`.
+Agents update Orca card state at meaningful checkpoints (repro, fix,
+validation, handoff, blocker): `orca worktree set --worktree active --comment
+"<short status>"` and `--workspace-status`.
 
 ## Per-worktree setup
 
