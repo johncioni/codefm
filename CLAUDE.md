@@ -41,6 +41,12 @@ swift test                  # unit tests (see caveat below)
 - **`swift test` needs *full* Xcode, not just the Command Line Tools.** On a
   CLT-only machine it fails with `no such module 'XCTest'` — that is an
   environment gap, not a code defect. Install Xcode to run the suite.
+- **In a Codex worker, run these through the sandbox wrapper.** Bare `swift`
+  fails inside the worker sandbox, so use
+  `~/.agents/sandbox/swift-sandboxed build`,
+  `~/.agents/sandbox/swift-sandboxed test`, and
+  `~/.agents/sandbox/swift-sandboxed exec ./Scripts/build-app.sh`
+  ("Gates in a worker's worktree" in `~/.agents/ORCHESTRATION.md` says why).
 
 ## Review loop
 
