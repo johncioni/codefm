@@ -9,9 +9,14 @@ shared by every harness and every worktree. Rules live in
 - `ruled-out.md`: approaches tried and abandoned, and why.
 
 **Read both before the first edit** of any task. **Only the orchestrator
-writes here**, in one memory PR per wave (a task outside a plan is its own
-wave): after the wave's task PRs merge, it promotes their decisions and
-ruled-out approaches in a PR that touches nothing else. The repo's
+writes here**, in reviewed memory PRs. It captures each task's summaries
+into the repo's memory queue and adjudicates ready tasks in batches: when a
+plan's wave finishes, once three or more are ready, when the oldest has been
+ready for 14 days, or sooner when one matters to work about to start. Tasks
+with durable material go into one memory PR that touches only this
+directory; a task with nothing durable is retired in the queue's
+`retired.log` without a PR. Policy, sandbox and harness material goes to
+orca-ops' `docs/policy-memory/` instead. The repo's
 `.github/review-invariants.txt` must list this directory, so that PR never
 skips review; the spec/plan reviewer reviews it at high. Task PRs carry no
 memory edits. Implementers never edit this directory; they list durable
