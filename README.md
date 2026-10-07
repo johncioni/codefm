@@ -1,8 +1,8 @@
 # Code FM
 
-A lightweight macOS menubar app that streams [Code FM](https://www.youtube.com/live/YmQ7jRgf4f0) live audio.
+A lightweight macOS menubar app that streams a curated catalog of live stations: YouTube live streams and SomaFM.
 
-Lives in your menubar. Left-click to play/pause. Right-click for the full menu. No dock icon, no windows, no bloat.
+Lives in your menubar. Left-click to play/pause. Right-click for the full menu. No dock icon, no main window, no bloat.
 
 <p align="center">
   <img src="docs/images/menu.png" alt="Code FM menubar dropdown" width="320">
