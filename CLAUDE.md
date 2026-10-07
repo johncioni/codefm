@@ -18,7 +18,8 @@ first edit. Only the orchestrator writes there, in reviewed memory PRs.
 **Code FM** is a lightweight macOS menubar app that streams a curated catalog
 of live stations (YouTube live streams and SomaFM; the catalog is
 `Resources/streams.json`). Native Swift + AppKit, an off-screen WebKit player
-for YouTube streams and AVPlayer for direct audio, no dock icon or windows.
+for YouTube streams and AVPlayer for direct audio. No dock icon or main
+window; Settings, About and What's New open as separate windows.
 
 - **Fully self-contained — no external dependencies.** No SPM packages, no
   Homebrew, no npm. `Package.swift` declares only system frameworks (WebKit,
