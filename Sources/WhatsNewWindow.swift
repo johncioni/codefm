@@ -9,7 +9,24 @@ final class WhatsNewWindow: NSWindow {
     }
 
     private static let releases: [Release] = [
-        Release(version: "1.3.2", date: "5/13/26", isLatest: true, entries: [
+        Release(version: "1.4", date: "10/7/26", isLatest: true, entries: [
+            (tag: "NEW", tagColor: .systemOrange, items: [
+                "Claude FM is now Code FM and installs as a new app. Your Claude FM settings and login item do not carry over.",
+                "Choose from 19 live stations across lo-fi, jazzhop, synthwave, ambient and brand groups, with 11 YouTube streams and 8 SomaFM audio stations. The Stream menu groups stations by genre, offers Random, and opens the Stream Library.",
+                "Browse stations and set a default or Random in Settings. Startup lets you choose a random station on launch, and General now holds the hotkey recorder.",
+                "The station catalog refreshes at launch, so new stations arrive without an app update. The built-in catalog is available if the refresh fails.",
+            ]),
+            (tag: "IMPROVED", tagColor: .systemBlue, items: [
+                "Stations are checked at launch. Offline stations are dimmed in Settings, hidden from the menu, and normally skipped by Random; the current station shows an Offline badge when it drops.",
+                "YouTube stations recover automatically when their live broadcast restarts.",
+            ]),
+            (tag: "FIXED", tagColor: .systemGreen, items: [
+                "Ended YouTube broadcasts no longer appear live.",
+                "Settings no longer opens blank, and app windows come to the front when you open them.",
+                "New stations included with an app update no longer stay hidden behind an older station list.",
+            ]),
+        ]),
+        Release(version: "1.3.2", date: "5/13/26", isLatest: false, entries: [
             (tag: "FIXED", tagColor: .systemGreen, items: [
                 "The hidden audio player no longer flashes into view after your Mac wakes from sleep.",
             ]),

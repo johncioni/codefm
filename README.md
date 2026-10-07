@@ -5,13 +5,15 @@ A lightweight macOS menubar app that streams a curated catalog of live stations:
 Lives in your menubar. Left-click to play/pause. Right-click for the full menu. No dock icon, no main window, no bloat.
 
 <p align="center">
-  <img src="docs/images/menu.png" alt="Code FM menubar dropdown" width="320">
+  <img src="docs/images/menu.png" alt="Code FM menubar dropdown" width="350">
 </p>
 
 ## Features
 
 - **Menubar player** — play/pause with a single click
 - **Liquid Glass dropdown** — frosted-glass panel with a Now Playing card, inline volume, and iOS-style toggles
+- **Station catalog** — 19 live stations across lo-fi, jazzhop, synthwave, ambient and brand groups; pick one from the menu or let it choose at random
+- **Settings window** — browse the stream library, set a default station, and see which stations are offline
 - **Play at Start** — auto-play when the app launches
 - **Start at Login** — launch automatically on boot
 - **Global hotkey** — toggle playback from any app (default: `⌘⇧P`)
@@ -58,6 +60,27 @@ Copy `Code FM.app` to `/Applications/`. On first launch, right-click the app and
 - **Quit** — exit the app
 
 ## Changelog
+
+### 1.4 — 2026-10-07
+
+**New**
+- Claude FM is now **Code FM** and installs as a new app. The bundle identifier changed from `com.claudefm.app` to `com.johncioni.codefm`, with preferences in the `com.johncioni.codefm.preferences` suite, so Claude FM settings and its login item do not carry over.
+- Station catalog with 19 live stations in five groups (lo-fi, jazzhop, synthwave, ambient and brand): 11 YouTube live streams and 8 SomaFM stations, defined in `Resources/streams.json`.
+- SomaFM stations play as direct audio through AVPlayer, with `.pls` and `.m3u` playlists resolved to their stream URLs.
+- Station picker in the menubar panel: the Stream row opens a menu with Random, stations grouped by genre, and Open Stream Library.
+- Settings window with a Stream Library grouped by genre, where you can play a station and set the default or choose Random. Startup includes a random-station-on-launch option; General holds the hotkey recorder, replacing the standalone hotkey window.
+- The catalog refreshes in the background at launch from this repo's `main` branch, with the bundled copy as fallback, so new stations arrive without an app update.
+
+**Improved**
+- Stream health monitor probes stations at launch, hides offline stations from the menu and normally excludes them from random selection, and dims them in Settings. The current station shows an Offline pill when it drops.
+- YouTube stations recover automatically when a live broadcast restarts under a new video ID by looking up the channel's current live stream.
+
+**Fixed**
+- Ended YouTube broadcasts are no longer treated as live.
+- Settings no longer opens blank, and app windows no longer open behind the frontmost app.
+- Newly bundled stations no longer stay hidden behind a stale cached catalog.
+- The player warms up ahead of the first play again, restoring first-play latency, and playlists with CRLF line endings parse correctly.
+- Stopping cancels a pending SomaFM playlist lookup, and turning off random-on-launch restores the previous default station.
 
 ### 1.3.2 — 2026-05-13
 
