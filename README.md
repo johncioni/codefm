@@ -117,7 +117,11 @@ Copy `Code FM.app` to `/Applications/`. On first launch, right-click the app and
 
 ## How it works
 
-Code FM uses an embedded WebKit view with the YouTube iframe API to stream audio from the Code FM live broadcast. The WebKit view runs off-screen (no visible window) and only handles audio playback. No video is rendered.
+Code FM plays a curated catalog of live stations defined in `Resources/streams.json`. The app ships with that file, caches it in `~/Library/Application Support/Code FM/`, and refreshes it in the background from this repo's `main` branch, so new stations arrive without an app update.
+
+YouTube live stations play through an embedded WebKit view running the YouTube iframe API. The view stays off-screen and renders no video. SomaFM stations are direct audio streams that AVPlayer plays, after resolving a `.pls` or `.m3u` playlist to its stream URL when the catalog points at one.
+
+At launch, a health monitor probes every station. The menu, Settings and the random picker refresh from its results when a station goes down or comes back.
 
 ## Building
 
@@ -132,7 +136,8 @@ This compiles with Swift Package Manager, assembles the `.app` bundle, and ad-ho
 ## Tech stack
 
 - **Swift** + **AppKit** — native macOS, no Electron
-- **WebKit** — embedded YouTube iframe player for audio streaming
+- **WebKit** — embedded YouTube iframe player for YouTube live stations
+- **AVFoundation** — `AVPlayer` for direct audio stations (SomaFM)
 - **Carbon** — global hotkey registration (no Accessibility permissions needed)
 - **ServiceManagement** — login item registration via `SMAppService`
 - **Swift Package Manager** — build system
@@ -141,19 +146,27 @@ This compiles with Swift Package Manager, assembles the `.app` bundle, and ad-ho
 
 ```
 Sources/
-  main.swift                   Entry point
-  AppDelegate.swift            App lifecycle, settings init, auto-play
-  StatusBarController.swift    Menubar icon, dropdown wiring, click handling
-  LiquidGlassMenuPanel.swift   Frosted-glass dropdown — Now Playing card, volume, toggles
-  StreamPlayer.swift           WebKit YouTube player, state machine
-  PlayerState.swift            State enum with icon mapping
-  Settings.swift               UserDefaults persistence
-  HotkeyManager.swift          Carbon global hotkey registration
-  HotkeyRecorderWindow.swift   Key combo capture UI
-  LoginItemManager.swift       SMAppService wrapper
-  FlippedView.swift            Shared top-down layout helper
-  AboutWindow.swift            About dialog
-  WhatsNewWindow.swift         Changelog dialog
+  main.swift                      Entry point
+  AppDelegate.swift               App lifecycle, settings init, auto-play
+  StatusBarController.swift       Menubar icon, dropdown wiring, click handling
+  LiquidGlassMenuPanel.swift      Frosted-glass dropdown — Now Playing card, volume, toggles
+  StreamPlayer.swift              Owns the current station; creates its source and switches stations
+  StreamSource.swift              Protocol for one playable audio source
+  YouTubeStreamSource.swift       Off-screen WebKit player for YouTube live stations
+  DirectAudioStreamSource.swift   AVPlayer for direct audio stations, PLS/M3U parsing
+  Stream.swift                    Station model: type, subgenre, attribution
+  StreamCatalog.swift             Catalog loading: bundled, cached, background refresh
+  StreamHealthMonitor.swift       Tracks which stations are down
+  RandomPicker.swift              Random station pick and the default-station rule
+  PlayerState.swift               State enum with icon mapping
+  Settings.swift                  UserDefaults persistence
+  SettingsWindow.swift            Settings window: library, startup, general
+  HotkeyManager.swift             Carbon global hotkey registration
+  HotkeyRecorderView.swift        Key combo capture in Settings
+  LoginItemManager.swift          SMAppService wrapper
+  FlippedView.swift               Shared top-down layout helper
+  AboutWindow.swift               About dialog
+  WhatsNewWindow.swift            Changelog dialog
 ```
 
 ## License
