@@ -17,7 +17,7 @@ final class WhatsNewWindow: NSWindow {
                 "The station catalog refreshes at launch, so new stations arrive without an app update. The built-in catalog is available if the refresh fails.",
             ]),
             (tag: "IMPROVED", tagColor: .systemBlue, items: [
-                "Stations are checked at launch. Offline stations are dimmed in Settings, hidden from the menu, and normally skipped by Random; the current station shows an Offline badge when it drops.",
+                "Stations are checked at launch. Offline stations are dimmed in Settings, hidden from the menu, and skipped when you pick Random from the menu; the current station shows an Offline badge when it drops.",
                 "YouTube stations recover automatically when their live broadcast restarts.",
             ]),
             (tag: "FIXED", tagColor: .systemGreen, items: [

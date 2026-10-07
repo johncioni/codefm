@@ -68,11 +68,11 @@ Copy `Code FM.app` to `/Applications/`. On first launch, right-click the app and
 - Station catalog with 19 live stations in five groups (lo-fi, jazzhop, synthwave, ambient and brand): 11 YouTube live streams and 8 SomaFM stations, defined in `Resources/streams.json`.
 - SomaFM stations play as direct audio through AVPlayer, with `.pls` and `.m3u` playlists resolved to their stream URLs.
 - Station picker in the menubar panel: the Stream row opens a menu with Random, stations grouped by genre, and Open Stream Library.
-- Settings window with a Stream Library grouped by genre, where you can play a station and set the default or choose Random. Startup includes a random-station-on-launch option; General holds the hotkey recorder, replacing the standalone hotkey window.
+- Settings window with a Stream Library grouped by genre, where you can play a station and set it as the default. Startup offers a random station on launch instead; General holds the hotkey recorder, replacing the standalone hotkey window.
 - The catalog refreshes in the background at launch from this repo's `main` branch, with the bundled copy as fallback, so new stations arrive without an app update.
 
 **Improved**
-- Stream health monitor probes stations at launch, hides offline stations from the menu and normally excludes them from random selection, and dims them in Settings. The current station shows an Offline pill when it drops.
+- Stream health monitor probes stations at launch, hides offline stations from the menu and from the menu's Random pick, and dims them in Settings. The current station shows an Offline pill when it drops.
 - YouTube stations recover automatically when a live broadcast restarts under a new video ID by looking up the channel's current live stream.
 
 **Fixed**
