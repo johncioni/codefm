@@ -9,7 +9,18 @@ final class WhatsNewWindow: NSWindow {
     }
 
     private static let releases: [Release] = [
-        Release(version: "1.4.3", date: "10/8/26", isLatest: true, entries: [
+        Release(version: "1.4.4", date: "10/8/26", isLatest: true, entries: [
+            (tag: "IMPROVED", tagColor: .systemBlue, items: [
+                "Lofi Girl's main and jazz stations play their current streams again. The 80s Guy darksynth and Pixar Soul lofi stations are removed because their streams ended, leaving 17 stations.",
+            ]),
+            (tag: "FIXED", tagColor: .systemGreen, items: [
+                "When a YouTube station's stream ends, Code FM switches only to a stream that is live right now, never to a recording or an old upload.",
+                "Stations on channels that run several live streams, such as Lofi Girl and Chillhop, no longer switch to a different stream from the same channel. They show as offline until the station list is updated.",
+                "A playing YouTube station recovers when macOS ends its background web process, instead of going offline.",
+                "A stopped or offline YouTube station can no longer get stuck on loading and ignore clicks.",
+            ]),
+        ]),
+        Release(version: "1.4.3", date: "10/8/26", isLatest: false, entries: [
             (tag: "FIXED", tagColor: .systemGreen, items: [
                 "A YouTube station is no longer marked offline, and hidden from the menu, while it is still recovering or after it has recovered.",
                 "When a YouTube broadcast ends, Code FM switches to the channel's new broadcast if there is one, instead of marking the station offline.",

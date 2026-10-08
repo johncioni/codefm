@@ -64,6 +64,17 @@ The app is ad-hoc signed and not notarized. On macOS 15 or later, open the app o
 
 ## Changelog
 
+### 1.4.4 — 2026-10-08
+
+**Improved**
+- Lofi Girl's main and jazz stations play their current streams again. The 80s Guy darksynth and Pixar Soul lofi stations are removed because their streams ended, leaving 17 stations.
+
+**Fixed**
+- When a YouTube station's stream ends, Code FM switches only to a stream that is live right now, never to a recording or an old upload.
+- Stations on channels that run several live streams, such as Lofi Girl and Chillhop, no longer switch to a different stream from the same channel. They show as offline until the station list is updated.
+- A playing YouTube station recovers when macOS ends its background web process, instead of going offline.
+- A stopped or offline YouTube station can no longer get stuck on loading and ignore clicks.
+
 ### 1.4.3 — 2026-10-08
 
 **Fixed**
