@@ -14,6 +14,8 @@ final class StreamHealthMonitor {
     private let logger = Logger(subsystem: "com.johncioni.codefm", category: "StreamHealth")
     private let queue = DispatchQueue(label: "com.johncioni.codefm.streamhealth", attributes: .concurrent)
     private var unavailable: Set<String> = []
+    // Latest definition checkAll saw for each station id.
+    private var definitions: [String: StreamType] = [:]
 
     /// User agent string used by all probes. Some YouTube edge servers serve a
     /// JS-less HTML body when the request looks like a bot, which trips our
@@ -59,7 +61,13 @@ final class StreamHealthMonitor {
 
     /// Probe every stream in the catalog. Each probe runs independently; the
     /// change notification fires at most once per stream as results come in.
+    /// Records each station's definition so a probe of an older one still in flight is ignored.
     func checkAll(catalog: StreamCatalog) {
+        queue.sync(flags: .barrier) {
+            for stream in catalog.streams {
+                definitions[stream.id] = stream.type
+            }
+        }
         for stream in catalog.streams {
             probe(stream)
         }
@@ -73,9 +81,9 @@ final class StreamHealthMonitor {
     private func probe(_ stream: Stream) {
         switch stream.type {
         case let .youtubeLive(videoId, channelLiveUrl, liveFallback):
-            probeYouTube(streamId: stream.id, videoId: videoId, channelLiveUrl: channelLiveUrl, liveFallback: liveFallback)
+            probeYouTube(stream: stream, videoId: videoId, channelLiveUrl: channelLiveUrl, liveFallback: liveFallback)
         case let .directAudio(url):
-            probeDirectAudio(streamId: stream.id, url: url)
+            probeDirectAudio(stream: stream, url: url)
         }
     }
 
@@ -103,34 +111,34 @@ final class StreamHealthMonitor {
         html.contains(#""status":"OK""#) && html.contains(#""isLive":true"#)
     }
 
-    private func probeYouTube(streamId: String, videoId: String, channelLiveUrl: URL, liveFallback: Bool) {
+    private func probeYouTube(stream: Stream, videoId: String, channelLiveUrl: URL, liveFallback: Bool) {
         guard let url = URL(string: "https://www.youtube.com/watch?v=\(videoId)") else {
             // Pinned videoId is malformed — use the channel only when allowed.
             if liveFallback {
-                probeChannelLive(streamId: streamId, channelLiveUrl: channelLiveUrl)
+                probeChannelLive(stream: stream, channelLiveUrl: channelLiveUrl)
             } else {
-                applyResult(streamId, available: false)
+                applyResult(stream, available: false)
             }
             return
         }
         fetchIndicatesLive(url: url) { [weak self] live in
             guard let self else { return }
             if live {
-                self.applyResult(streamId, available: true)
+                self.applyResult(stream, available: true)
             } else if liveFallback {
                 // A stale/ended pinned video can recover through the channel's
                 // current broadcast only when the catalog allows that fallback,
                 // mirroring YouTubeStreamSource.resolveCurrentLiveVideoId.
-                self.probeChannelLive(streamId: streamId, channelLiveUrl: channelLiveUrl)
+                self.probeChannelLive(stream: stream, channelLiveUrl: channelLiveUrl)
             } else {
-                self.applyResult(streamId, available: false)
+                self.applyResult(stream, available: false)
             }
         }
     }
 
-    private func probeChannelLive(streamId: String, channelLiveUrl: URL) {
+    private func probeChannelLive(stream: Stream, channelLiveUrl: URL) {
         fetchIndicatesLive(url: channelLiveUrl, predicate: Self.htmlShowsLiveBroadcast) { [weak self] live in
-            self?.applyResult(streamId, available: live)
+            self?.applyResult(stream, available: live)
         }
     }
 
@@ -147,7 +155,7 @@ final class StreamHealthMonitor {
         }.resume()
     }
 
-    private func probeDirectAudio(streamId: String, url: URL) {
+    private func probeDirectAudio(stream: Stream, url: URL) {
         var request = URLRequest(url: url)
         request.timeoutInterval = 5
         request.setValue(Self.userAgent, forHTTPHeaderField: "User-Agent")
@@ -155,12 +163,17 @@ final class StreamHealthMonitor {
             guard let self else { return }
             let ok = (response as? HTTPURLResponse)?.statusCode == 200
                 && (data.map { String(data: $0, encoding: .utf8)?.contains("File1=") ?? false } ?? false)
-            self.applyResult(streamId, available: ok)
+            self.applyResult(stream, available: ok)
         }.resume()
     }
 
-    private func applyResult(_ id: String, available: Bool) {
-        if available { markAvailable(id) } else { markUnavailable(id) }
+    private func applyResult(_ stream: Stream, available: Bool) {
+        let current = queue.sync { definitions[stream.id] }
+        guard ProbeResultPolicy.shouldApply(probed: stream.type, current: current) else {
+            logger.info("Ignored a probe of a replaced definition: \(stream.id, privacy: .public)")
+            return
+        }
+        if available { markAvailable(stream.id) } else { markUnavailable(stream.id) }
     }
 
     private func postChange() {
@@ -172,4 +185,13 @@ final class StreamHealthMonitor {
 
 extension Notification.Name {
     static let codeFMStreamHealthChanged = Notification.Name("CodeFMStreamHealthChanged")
+}
+
+/// Whether a finished probe may change a station's health. Health is kept
+/// by station id, so a probe of a definition the catalog has since replaced
+/// (a re-pinned video, say) must not overwrite the current one's result.
+enum ProbeResultPolicy {
+    static func shouldApply(probed: StreamType, current: StreamType?) -> Bool {
+        current == nil || current == probed
+    }
 }
