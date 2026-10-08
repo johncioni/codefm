@@ -64,6 +64,23 @@ final class StreamPlayer {
         if shouldAutoplay { currentSource?.play() }
     }
 
+    /// Apply a refreshed catalog entry for the loaded station. A new playback
+    /// definition rebuilds the source and keeps the app's play request; other
+    /// changes only replace the stream's details.
+    func refresh(with stream: Stream) {
+        guard stream.id == currentStream.id else { return }
+        switch CatalogRefreshAction.decide(loaded: currentStream, refreshed: stream, isPlaybackRequested: isPlaybackRequested) {
+        case .unchanged:
+            break
+        case .updateDetails:
+            currentStream = stream
+            onCurrentStreamChange?(stream)
+        case let .reload(autoplay):
+            load(stream: stream, autoplay: autoplay)
+            if !autoplay { prefetch() }
+        }
+    }
+
     private func rebuildSource(for stream: Stream) {
         currentSource?.onStateChange = nil
         currentSource?.dispose()
@@ -79,5 +96,22 @@ final class StreamPlayer {
             self?.onStateChange?(newState)
         }
         currentSource = source
+    }
+}
+
+/// What a refreshed catalog entry for the loaded station means for the player.
+/// `Stream ==` compares ids only, so the fields are compared here.
+enum CatalogRefreshAction: Equatable {
+    case unchanged, updateDetails
+    case reload(autoplay: Bool)
+
+    static func decide(loaded: Stream, refreshed: Stream, isPlaybackRequested: Bool) -> CatalogRefreshAction {
+        if refreshed.type != loaded.type { return .reload(autoplay: isPlaybackRequested) }
+        let sameDetails = refreshed.displayName == loaded.displayName
+            && refreshed.subgenre == loaded.subgenre
+            && refreshed.attribution == loaded.attribution
+            && refreshed.description == loaded.description
+            && refreshed.providerLabel == loaded.providerLabel
+        return sameDetails ? .unchanged : .updateDetails
     }
 }
