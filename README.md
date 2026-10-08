@@ -12,7 +12,7 @@ Lives in your menubar. Left-click to play/pause. Right-click for the full menu. 
 
 - **Menubar player** — play/pause with a single click
 - **Liquid Glass dropdown** — frosted-glass panel with a Now Playing card, inline volume, and iOS-style toggles
-- **Station catalog** — 19 live stations across lo-fi, jazzhop, synthwave, ambient and brand groups; pick one from the menu or let it choose at random
+- **Station catalog** — 17 live stations across lo-fi, jazzhop, synthwave, ambient and brand groups; pick one from the menu or let it choose at random
 - **Settings window** — browse the stream library, set a default station, and see which stations are offline
 - **Play at Start** — auto-play when the app launches
 - **Start at Login** — launch automatically on boot

@@ -7,8 +7,9 @@
       "displayName": "Lofi Girl — Beats to Relax/Study",
       "subgenre": "lofi",
       "type": "youtube_live",
-      "videoId": "jfKfPfyJRdk",
+      "videoId": "rFZHOHl-L8A",
       "channelLiveUrl": "https://www.youtube.com/@LofiGirl/live",
+      "liveFallback": false,
       "attribution": { "artist": "Lofi Girl", "website": "https://lofigirl.com" },
       "description": "The original 24/7 lo-fi study stream.",
       "providerLabel": "YouTube"
@@ -51,8 +52,9 @@
       "displayName": "Lofi Girl — Jazz Lofi",
       "subgenre": "jazzhop",
       "type": "youtube_live",
-      "videoId": "HuFYqnbVbzY",
+      "videoId": "E2vONfzoyRI",
       "channelLiveUrl": "https://www.youtube.com/@LofiGirl/live",
+      "liveFallback": false,
       "attribution": { "artist": "Lofi Girl", "website": "https://lofigirl.com" },
       "description": "Mellow jazz-tinged lo-fi for deep work.",
       "providerLabel": "YouTube"
@@ -64,6 +66,7 @@
       "type": "youtube_live",
       "videoId": "5yx6BWlEVcY",
       "channelLiveUrl": "https://www.youtube.com/channel/UCOxqgCwgOqC2lMqC5PYz_Dg/live",
+      "liveFallback": false,
       "attribution": { "artist": "Chillhop Music", "website": "https://chillhop.com" },
       "description": "Chillhop's flagship jazzy hip-hop radio.",
       "providerLabel": "YouTube"
@@ -85,19 +88,9 @@
       "type": "youtube_live",
       "videoId": "4xDzrJKXOOY",
       "channelLiveUrl": "https://www.youtube.com/@LofiGirl/live",
+      "liveFallback": false,
       "attribution": { "artist": "Lofi Girl (Synthwave Boy)", "website": "https://lofigirl.com" },
       "description": "Retro-synth chill for night coding.",
-      "providerLabel": "YouTube"
-    },
-    {
-      "id": "the80sguy-darksynth",
-      "displayName": "The 80s Guy — Darksynth AMV Radio",
-      "subgenre": "synthwave",
-      "type": "youtube_live",
-      "videoId": "Nn87x5B26-c",
-      "channelLiveUrl": "https://www.youtube.com/channel/UCJ80_CMnIOrKtMyFbIFIQ7A/live",
-      "attribution": { "artist": "The 80s Guy", "website": "https://www.youtube.com/@The80sGuy" },
-      "description": "Brutal 80s-tinged darksynth beats.",
       "providerLabel": "YouTube"
     },
     {
@@ -179,17 +172,6 @@
       "channelLiveUrl": "https://www.youtube.com/@claude/live",
       "attribution": { "artist": "Anthropic", "website": "https://claude.com" },
       "description": "Music for thinking and building.",
-      "providerLabel": "YouTube"
-    },
-    {
-      "id": "pixar-soul-lofi",
-      "displayName": "Pixar LoFi — Soul's Half Note Jazz Club",
-      "subgenre": "brand",
-      "type": "youtube_live",
-      "videoId": "LoH-5aZBJtc",
-      "channelLiveUrl": "https://www.youtube.com/channel/UC_IRYSp4auq7hKLvziWVH6w/live",
-      "attribution": { "artist": "Pixar", "website": "https://www.pixar.com" },
-      "description": "Looped jazz-club ambience from Pixar's Soul.",
       "providerLabel": "YouTube"
     },
     {
