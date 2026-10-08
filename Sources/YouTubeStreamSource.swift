@@ -40,7 +40,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     deinit { teardownWebView() }
 
     func play() {
-        fallbackGate.rearm()
+        fallbackGate.reset()
         isPlayRequested = true
         if webView != nil && loadFailed { teardownWebView() }
         shouldPlayWhenReady = true
@@ -261,7 +261,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
             cancelPlaybackTimer()
             cancelBufferTimer()
             loadFailed = false
-            fallbackGate.playing()
+            fallbackGate.reset()
             state = .playing
         case "loading":
             if state == .playing { startBufferTimer() } else { state = .loading }
@@ -430,7 +430,9 @@ struct LiveFallbackGate {
         return true
     }
 
-    mutating func playing() {
+    /// Called when playback reaches "playing" or a new play attempt starts:
+    /// supersede any resolve in flight and make the fallback available again.
+    mutating func reset() {
         inFlightToken = nil
         rearm()
     }

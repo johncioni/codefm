@@ -15,13 +15,14 @@ final class LiveFallbackGateTests: XCTestCase {
         XCTAssertEqual(gate.failure(), .goOffline)
     }
 
-    func test_playingSupersedesResolveAndAllowsNewToken() {
+    func test_resetOnPlayAttemptOrPlayingSupersedesResolveAndAllowsNewTokenToComplete() {
         var gate = LiveFallbackGate()
         guard case let .resolve(oldToken) = gate.failure() else { return XCTFail("Expected resolve") }
-        gate.playing()
+        gate.reset()
         XCTAssertFalse(gate.complete(token: oldToken))
         guard case let .resolve(newToken) = gate.failure() else { return XCTFail("Expected new resolve") }
         XCTAssertNotEqual(newToken, oldToken)
+        XCTAssertTrue(gate.complete(token: newToken))
     }
 
     func test_rearmAfterCompletionAllowsAnotherResolve() {
@@ -43,7 +44,7 @@ final class LiveFallbackGateTests: XCTestCase {
     func test_staleCompletionDoesNotConsumeNewResolve() {
         var gate = LiveFallbackGate()
         guard case let .resolve(oldToken) = gate.failure() else { return XCTFail("Expected resolve") }
-        gate.playing()
+        gate.reset()
         guard case let .resolve(newToken) = gate.failure() else { return XCTFail("Expected new resolve") }
         XCTAssertFalse(gate.complete(token: oldToken))
         XCTAssertEqual(gate.failure(), .ignore)
@@ -51,12 +52,12 @@ final class LiveFallbackGateTests: XCTestCase {
         XCTAssertFalse(gate.complete(token: newToken))
     }
 
-    func test_playingRearmsAfterOffline() {
+    func test_resetRearmsAfterOffline() {
         var gate = LiveFallbackGate()
         guard case let .resolve(token) = gate.failure() else { return XCTFail("Expected resolve") }
         XCTAssertTrue(gate.complete(token: token))
         XCTAssertEqual(gate.failure(), .goOffline)
-        gate.playing()
+        gate.reset()
         guard case .resolve = gate.failure() else { return XCTFail("Expected rearmed resolve") }
     }
 }
