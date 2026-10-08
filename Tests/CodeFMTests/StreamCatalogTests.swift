@@ -22,11 +22,36 @@ final class StreamCatalogTests: XCTestCase {
         XCTAssertEqual(stream.id, "lofigirl-main")
         XCTAssertEqual(stream.subgenre, .lofi)
         XCTAssertEqual(stream.providerLabel, "YouTube")
-        guard case let .youtubeLive(videoId, channelLiveUrl) = stream.type else {
+        guard case let .youtubeLive(videoId, channelLiveUrl, liveFallback) = stream.type else {
             return XCTFail("expected youtubeLive type")
         }
+        XCTAssertTrue(liveFallback)
         XCTAssertEqual(videoId, "jfKfPfyJRdk")
         XCTAssertEqual(channelLiveUrl, URL(string: "https://www.youtube.com/@LofiGirl/live"))
+    }
+
+    func test_decodesYouTubeStreamWithLiveFallbackDisabled() throws {
+        let json = """
+        {
+          "id": "lofigirl-main",
+          "displayName": "Lofi Girl — Beats to Relax/Study",
+          "subgenre": "lofi",
+          "type": "youtube_live",
+          "videoId": "jfKfPfyJRdk",
+          "channelLiveUrl": "https://www.youtube.com/@LofiGirl/live",
+          "liveFallback": false,
+          "attribution": { "artist": "Lofi Girl", "website": "https://lofigirl.com" },
+          "description": "The original 24/7 lo-fi study stream.",
+          "providerLabel": "YouTube"
+        }
+        """.data(using: .utf8)!
+
+        let stream = try JSONDecoder().decode(Stream.self, from: json)
+
+        guard case let .youtubeLive(_, _, liveFallback) = stream.type else {
+            return XCTFail("expected youtubeLive type")
+        }
+        XCTAssertFalse(liveFallback)
     }
 
     func test_decodesDirectAudioStream() throws {

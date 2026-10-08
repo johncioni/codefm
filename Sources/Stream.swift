@@ -27,7 +27,7 @@ enum Subgenre: String, Codable {
 }
 
 enum StreamType {
-    case youtubeLive(videoId: String, channelLiveUrl: URL)
+    case youtubeLive(videoId: String, channelLiveUrl: URL, liveFallback: Bool)
     case directAudio(url: URL)
 }
 
@@ -51,7 +51,7 @@ struct Stream: Identifiable, Equatable {
 extension Stream: Decodable {
     private enum CodingKeys: String, CodingKey {
         case id, displayName, subgenre, type
-        case videoId, channelLiveUrl, url
+        case videoId, channelLiveUrl, liveFallback, url
         case attribution, description, providerLabel
     }
 
@@ -69,7 +69,8 @@ extension Stream: Decodable {
         case "youtube_live":
             let videoId = try c.decode(String.self, forKey: .videoId)
             let channelLiveUrl = try c.decode(URL.self, forKey: .channelLiveUrl)
-            self.type = .youtubeLive(videoId: videoId, channelLiveUrl: channelLiveUrl)
+            let liveFallback = try c.decodeIfPresent(Bool.self, forKey: .liveFallback) ?? true
+            self.type = .youtubeLive(videoId: videoId, channelLiveUrl: channelLiveUrl, liveFallback: liveFallback)
         case "direct_audio":
             let url = try c.decode(URL.self, forKey: .url)
             self.type = .directAudio(url: url)

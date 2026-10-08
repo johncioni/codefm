@@ -41,4 +41,23 @@ final class StreamHealthMonitorTests: XCTestCase {
         let html = #"{"playabilityStatus":{"status":"OK"},"videoDetails":{"isLive":false,"isLiveContent":true}}"#
         XCTAssertFalse(StreamHealthMonitor.htmlIndicatesLive(html))
     }
+
+    func test_liveBroadcastRequiresOKAndIsLive() {
+        XCTAssertTrue(StreamHealthMonitor.htmlShowsLiveBroadcast(liveHTML))
+    }
+
+    func test_pastStreamIsNotALiveBroadcast() {
+        let html = #"{"playabilityStatus":{"status":"OK"},"videoDetails":{"isLiveContent":true}}"#
+        XCTAssertFalse(StreamHealthMonitor.htmlShowsLiveBroadcast(html))
+    }
+
+    func test_isLiveWithoutOKIsNotALiveBroadcast() {
+        let html = #"{"videoDetails":{"isLive":true}}"#
+        XCTAssertFalse(StreamHealthMonitor.htmlShowsLiveBroadcast(html))
+    }
+
+    func test_channelPageIsNotALiveBroadcast() {
+        let html = #"{"videoId":"jfKfPfyJRdk"}"#
+        XCTAssertFalse(StreamHealthMonitor.htmlShowsLiveBroadcast(html))
+    }
 }
