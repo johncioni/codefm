@@ -2,6 +2,13 @@
 
 Newest first. Format and rules: `README.md` in this directory.
 
+## 2026-10-08 Play intent comes from StreamPlayer's commands, not source states
+
+The play request is set only where the app asks to play or stop
+(`StreamPlayer.togglePlayback`, `stop`, `load`). Inferring it from source
+callbacks failed: a failed AVPlayer item also emits `.stopped`, in either
+order with `.offline`, so a 1.4.1 launch replacement went silent. PR #30.
+
 ## 2026-10-07 Releases ship ad-hoc signed until John adds a Developer ID
 
 John chose ad-hoc signing for v1.4 and will add a certificate later, so
