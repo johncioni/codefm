@@ -9,7 +9,17 @@ final class WhatsNewWindow: NSWindow {
     }
 
     private static let releases: [Release] = [
-        Release(version: "1.4.4", date: "10/8/26", isLatest: true, entries: [
+        Release(version: "1.4.5", date: "10/8/26", isLatest: true, entries: [
+            (tag: "IMPROVED", tagColor: .systemBlue, items: [
+                "The Claude FM station is now named Anthropic — Claude FM, after its provider.",
+            ]),
+            (tag: "FIXED", tagColor: .systemGreen, items: [
+                "When the station list updates at launch, the station you have loaded picks up its new stream or name right away instead of at the next launch. A stopped station stays stopped.",
+                "A YouTube station that pauses by itself no longer starts playing again on its own when Code FM finds the channel's new live stream.",
+                "A YouTube station resumed with a media key no longer shows as playing with no sound after macOS ends its background web process. One click plays it again.",
+            ]),
+        ]),
+        Release(version: "1.4.4", date: "10/8/26", isLatest: false, entries: [
             (tag: "IMPROVED", tagColor: .systemBlue, items: [
                 "Lofi Girl's main and jazz stations play their current streams again. The 80s Guy darksynth and Pixar Soul lofi stations are removed because their streams ended, leaving 17 stations.",
             ]),
