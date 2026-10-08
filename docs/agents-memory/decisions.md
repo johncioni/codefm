@@ -2,6 +2,13 @@
 
 Newest first. Format and rules: `README.md` in this directory.
 
+## 2026-10-08 Station swaps autoplay on StreamPlayer.wantsPlayback
+
+A launch replacement, refresh reload or removed station's swap keeps the play
+request through a failure (#30, FM-18), unlike a restart inside the YouTube
+source, but not after the YouTube player paused itself. Only YouTube can tell
+a pause from a failure; direct audio emits `.stopped` on failure. PRs #42, #45.
+
 ## 2026-10-08 Sync codefm-website after every app release
 
 Nothing syncs the site's `content/` on its own: someone runs that repo's
@@ -9,12 +16,12 @@ Nothing syncs the site's `content/` on its own: someone runs that repo's
 leaving a stale changelog and the 19-station catalog. John asked for a sync
 after 1.4.4; do one after each release. johncioni/codefm-website#52.
 
-## 2026-10-08 Rebuild after a web-process exit only during an active attempt
+## 2026-10-08 YouTube-source autoplay needs an active attempt, not just intent
 
-Play intent stays set after a station goes offline or the YouTube player
-pauses itself, so FM-17's first process-exit rebuild, keyed on intent alone,
-could start audio hours later on a station shown offline: it also needs
-`.loading` or `.playing`. The silent prefetch fallback is not bound. PR #37.
+Play intent outlives an offline station or a YouTube self-pause, so the
+process-exit rebuild and the channel lookup's reload, keyed on intent alone,
+could start audio on a station shown offline or stopped: both also need
+`.loading` or `.playing`. Silent reloads are not bound. PRs #37, #43.
 
 ## 2026-10-08 Follow a channel's /live page only to a live broadcast
 
