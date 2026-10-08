@@ -38,6 +38,8 @@ final class StatusBarController: NSObject {
 
         streamPlayer.onCurrentStreamChange = { [weak self] stream in
             self?.liquidGlassPanel?.currentStreamId = stream.id
+            // A new source starts without reporting its state.
+            self?.liquidGlassPanel?.updatePlayerState(streamPlayer.state)
             self?.updateIcon(for: streamPlayer.state)
         }
 
