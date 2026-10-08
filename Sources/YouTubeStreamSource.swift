@@ -388,11 +388,10 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-        guard isPlayRequested else {
+        switch ProcessExitAction.decide(isPlayRequested: isPlayRequested, state: state, didRebuild: didRebuildAfterProcessExit) {
+        case .teardown:
             teardownWebView()
-            return
-        }
-        if !didRebuildAfterProcessExit {
+        case .rebuild:
             didRebuildAfterProcessExit = true
             fallbackGate.reset()
             teardownWebView()
@@ -400,13 +399,13 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
             state = .loading
             startPlaybackTimer()
             loadPlayerIfNeeded()
-            return
+        case .fail:
+            loadFailed = true
+            shouldPlayWhenReady = false
+            cancelPlaybackTimer()
+            cancelBufferTimer()
+            handleLoadFailure()
         }
-        loadFailed = true
-        shouldPlayWhenReady = false
-        cancelPlaybackTimer()
-        cancelBufferTimer()
-        handleLoadFailure()
     }
 
     // MARK: - WKScriptMessageHandler
@@ -460,5 +459,17 @@ struct LiveFallbackGate {
 
     mutating func rearm() {
         didUseFallback = false
+    }
+}
+
+/// What a web content process exit means for the player. The exit says
+/// nothing about the stream, so rebuild once while a play attempt is in
+/// progress; outside one, drop the view so it cannot start playback later.
+enum ProcessExitAction: Equatable {
+    case teardown, rebuild, fail
+
+    static func decide(isPlayRequested: Bool, state: PlayerState, didRebuild: Bool) -> ProcessExitAction {
+        guard isPlayRequested, state == .loading || state == .playing else { return .teardown }
+        return didRebuild ? .fail : .rebuild
     }
 }

@@ -60,5 +60,4 @@ final class StreamHealthMonitorTests: XCTestCase {
         let html = #"{"videoId":"jfKfPfyJRdk"}"#
         XCTAssertFalse(StreamHealthMonitor.htmlShowsLiveBroadcast(html))
     }
-
 }

@@ -30,7 +30,7 @@ final class StreamCatalogTests: XCTestCase {
         XCTAssertEqual(channelLiveUrl, URL(string: "https://www.youtube.com/@LofiGirl/live"))
     }
 
-    func test_decodesYouTubeStreamWithoutLiveFallback() throws {
+    func test_decodesYouTubeStreamWithLiveFallbackDisabled() throws {
         let json = """
         {
           "id": "lofigirl-main",
