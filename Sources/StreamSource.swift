@@ -12,8 +12,13 @@ protocol StreamSource: AnyObject {
     func dispose()
     /// Eagerly do work needed to make `play()` feel instant. Optional — default empty.
     func prefetch()
+    /// True when the app asked to play but the player paused itself (a media
+    /// key, say) and nothing has played since. Only the YouTube source can
+    /// tell: a failed direct-audio item reports `.stopped` too. Default false.
+    var isPausedByPlayer: Bool { get }
 }
 
 extension StreamSource {
     func prefetch() {}
+    var isPausedByPlayer: Bool { false }
 }

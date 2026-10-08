@@ -20,6 +20,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     private var loadFailed = false
     private var fallbackGate = LiveFallbackGate()
     private var didRebuildAfterProcessExit = false
+    private(set) var isPausedByPlayer = false
     private var playbackTimer: Timer?
     private var bufferTimer: Timer?
 
@@ -46,6 +47,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
         fallbackGate.reset()
         didRebuildAfterProcessExit = false
         isPlayRequested = true
+        isPausedByPlayer = false
         if webView != nil && loadFailed { teardownWebView() }
         shouldPlayWhenReady = true
         state = .loading
@@ -56,6 +58,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
 
     func stop() {
         isPlayRequested = false
+        isPausedByPlayer = false
         shouldPlayWhenReady = false
         cancelPlaybackTimer()
         cancelBufferTimer()
@@ -281,11 +284,15 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
             loadFailed = false
             fallbackGate.reset()
             didRebuildAfterProcessExit = false
+            isPausedByPlayer = false
             state = .playing
         case "loading":
             if state == .playing { startBufferTimer() }
         case "stopped":
-            cancelPlaybackTimer(); cancelBufferTimer(); state = .stopped
+            cancelPlaybackTimer()
+            cancelBufferTimer()
+            if isPlayRequested { isPausedByPlayer = true }
+            state = .stopped
         default: break
         }
     }

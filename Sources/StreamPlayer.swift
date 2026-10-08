@@ -10,6 +10,9 @@ final class StreamPlayer {
 
     private(set) var currentStream: Stream
     private(set) var isPlaybackRequested = false
+    /// The play request, unless the player paused itself since. A station that
+    /// replaces or reloads the current one autoplays only when this is true.
+    var wantsPlayback: Bool { isPlaybackRequested && currentSource?.isPausedByPlayer != true }
     private var currentSource: StreamSource?
 
     var volume: Float = 1.0 {
@@ -65,11 +68,11 @@ final class StreamPlayer {
     }
 
     /// Apply a refreshed catalog entry for the loaded station. A new playback
-    /// definition rebuilds the source and keeps the app's play request; other
-    /// changes only replace the stream's details.
+    /// definition rebuilds the source and keeps the app's play request unless the
+    /// player paused itself; other changes only replace the stream's details.
     func refresh(with stream: Stream) {
         guard stream.id == currentStream.id else { return }
-        switch CatalogRefreshAction.decide(loaded: currentStream, refreshed: stream, isPlaybackRequested: isPlaybackRequested) {
+        switch CatalogRefreshAction.decide(loaded: currentStream, refreshed: stream, isPlaybackRequested: wantsPlayback) {
         case .unchanged:
             break
         case .updateDetails:
