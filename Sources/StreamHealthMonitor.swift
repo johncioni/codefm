@@ -72,8 +72,8 @@ final class StreamHealthMonitor {
 
     private func probe(_ stream: Stream) {
         switch stream.type {
-        case let .youtubeLive(videoId, channelLiveUrl):
-            probeYouTube(streamId: stream.id, videoId: videoId, channelLiveUrl: channelLiveUrl)
+        case let .youtubeLive(videoId, channelLiveUrl, liveFallback):
+            probeYouTube(streamId: stream.id, videoId: videoId, channelLiveUrl: channelLiveUrl, liveFallback: liveFallback)
         case let .directAudio(url):
             probeDirectAudio(streamId: stream.id, url: url)
         }
@@ -97,43 +97,52 @@ final class StreamHealthMonitor {
         return html.contains(#""isLiveContent":true"#)
     }
 
-    private func probeYouTube(streamId: String, videoId: String, channelLiveUrl: URL) {
+    /// A channel's /live page can serve a past stream or upload, where
+    /// isLiveContent alone would incorrectly read as a current broadcast.
+    static func htmlShowsLiveBroadcast(_ html: String) -> Bool {
+        html.contains(#""status":"OK""#) && html.contains(#""isLive":true"#)
+    }
+
+    private func probeYouTube(streamId: String, videoId: String, channelLiveUrl: URL, liveFallback: Bool) {
         guard let url = URL(string: "https://www.youtube.com/watch?v=\(videoId)") else {
-            // Pinned videoId is malformed — go straight to the channel's live endpoint.
-            probeChannelLive(streamId: streamId, channelLiveUrl: channelLiveUrl)
+            // Pinned videoId is malformed — use the channel only when allowed.
+            if liveFallback {
+                probeChannelLive(streamId: streamId, channelLiveUrl: channelLiveUrl)
+            } else {
+                applyResult(streamId, available: false)
+            }
             return
         }
         fetchIndicatesLive(url: url) { [weak self] live in
             guard let self else { return }
             if live {
                 self.applyResult(streamId, available: true)
-            } else {
-                // The pinned videoId is stale/ended (a 24/7 channel rotates its
-                // videoId on every restart, so the id baked into streams.json goes
-                // dead). Before hiding the stream, check the channel's *current*
-                // live broadcast — mirroring the playback-time recovery in
-                // YouTubeStreamSource.resolveCurrentLiveVideoId. Without this, a
-                // live-but-rotated stream disappears from the menu entirely.
+            } else if liveFallback {
+                // A stale/ended pinned video can recover through the channel's
+                // current broadcast only when the catalog allows that fallback,
+                // mirroring YouTubeStreamSource.resolveCurrentLiveVideoId.
                 self.probeChannelLive(streamId: streamId, channelLiveUrl: channelLiveUrl)
+            } else {
+                self.applyResult(streamId, available: false)
             }
         }
     }
 
     private func probeChannelLive(streamId: String, channelLiveUrl: URL) {
-        fetchIndicatesLive(url: channelLiveUrl) { [weak self] live in
+        fetchIndicatesLive(url: channelLiveUrl, predicate: Self.htmlShowsLiveBroadcast) { [weak self] live in
             self?.applyResult(streamId, available: live)
         }
     }
 
     /// Fetch `url` with the Safari UA and report whether its HTML indicates a live stream.
-    private func fetchIndicatesLive(url: URL, completion: @escaping (Bool) -> Void) {
+    private func fetchIndicatesLive(url: URL, predicate: @escaping (String) -> Bool = StreamHealthMonitor.htmlIndicatesLive, completion: @escaping (Bool) -> Void) {
         var request = URLRequest(url: url)
         request.timeoutInterval = 8
         request.setValue(Self.userAgent, forHTTPHeaderField: "User-Agent")
         URLSession.shared.dataTask(with: request) { data, _, _ in
             let live = data
                 .flatMap { String(data: $0, encoding: .utf8) }
-                .map(Self.htmlIndicatesLive) ?? false
+                .map(predicate) ?? false
             completion(live)
         }.resume()
     }

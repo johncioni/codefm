@@ -10,6 +10,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
 
     private var videoId: String
     private let channelLiveUrl: URL
+    private let liveFallback: Bool
 
     private var webView: WKWebView?
     private var playerWindow: NSWindow?
@@ -18,6 +19,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     private var shouldPlayWhenReady = false
     private var loadFailed = false
     private var fallbackGate = LiveFallbackGate()
+    private var didRebuildAfterProcessExit = false
     private var playbackTimer: Timer?
     private var bufferTimer: Timer?
 
@@ -31,9 +33,10 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
         didSet { if oldValue != state { onStateChange?(state) } }
     }
 
-    init(videoId: String, channelLiveUrl: URL) {
+    init(videoId: String, channelLiveUrl: URL, liveFallback: Bool) {
         self.videoId = videoId
         self.channelLiveUrl = channelLiveUrl
+        self.liveFallback = liveFallback
         super.init()
     }
 
@@ -41,6 +44,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
 
     func play() {
         fallbackGate.reset()
+        didRebuildAfterProcessExit = false
         isPlayRequested = true
         if webView != nil && loadFailed { teardownWebView() }
         shouldPlayWhenReady = true
@@ -121,6 +125,10 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     }
 
     private func handleLoadFailure() {
+        guard liveFallback else {
+            state = .offline
+            return
+        }
         switch fallbackGate.failure() {
         case .ignore:
             return
@@ -144,7 +152,8 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
                         self.startPlaybackTimer()
                     } else {
                         self.shouldPlayWhenReady = false
-                        // A silent reload never reaches "playing", so keep the fallback available for the next play attempt.
+                        // A later failure of this unrequested view should look up
+                        // the channel again instead of going offline.
                         self.fallbackGate.rearm()
                     }
                     self.loadPlayerIfNeeded()
@@ -169,7 +178,8 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
             let resolved: String? = {
                 guard
                     let data,
-                    let html = String(data: data, encoding: .utf8)
+                    let html = String(data: data, encoding: .utf8),
+                    StreamHealthMonitor.htmlShowsLiveBroadcast(html)
                 else { return nil }
                 // The current live videoId appears as `"videoId":"XXXXXXXXXXX"` in
                 // the YouTube watch player's initial data blob.
@@ -262,9 +272,10 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
             cancelBufferTimer()
             loadFailed = false
             fallbackGate.reset()
+            didRebuildAfterProcessExit = false
             state = .playing
         case "loading":
-            if state == .playing { startBufferTimer() } else { state = .loading }
+            if state == .playing { startBufferTimer() }
         case "stopped":
             cancelPlaybackTimer(); cancelBufferTimer(); state = .stopped
         default: break
@@ -379,6 +390,16 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
         guard isPlayRequested else {
             teardownWebView()
+            return
+        }
+        if !didRebuildAfterProcessExit {
+            didRebuildAfterProcessExit = true
+            fallbackGate.reset()
+            teardownWebView()
+            shouldPlayWhenReady = true
+            state = .loading
+            startPlaybackTimer()
+            loadPlayerIfNeeded()
             return
         }
         loadFailed = true

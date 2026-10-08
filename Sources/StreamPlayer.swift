@@ -69,8 +69,8 @@ final class StreamPlayer {
         currentSource?.dispose()
         let source: StreamSource
         switch stream.type {
-        case let .youtubeLive(videoId, channelLiveUrl):
-            source = YouTubeStreamSource(videoId: videoId, channelLiveUrl: channelLiveUrl)
+        case let .youtubeLive(videoId, channelLiveUrl, liveFallback):
+            source = YouTubeStreamSource(videoId: videoId, channelLiveUrl: channelLiveUrl, liveFallback: liveFallback)
         case let .directAudio(url):
             source = DirectAudioStreamSource(url: url)
         }
