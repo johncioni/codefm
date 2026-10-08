@@ -2,12 +2,12 @@
 
 Newest first. Format and rules: `README.md` in this directory.
 
-## 2026-10-08 Station swaps autoplay on StreamPlayer.wantsPlayback
+## 2026-10-08 Which automatic station swaps keep the play request
 
-A launch replacement, refresh reload or removed station's swap keeps the play
-request through a failure (#30, FM-18), unlike a restart inside the YouTube
-source, but not after the YouTube player paused itself. Only YouTube can tell
-a pause from a failure; direct audio emits `.stopped` on failure. PRs #42, #45.
+A refresh reload and the provisional launch pick's replacement or removal
+autoplay on `StreamPlayer.wantsPlayback`: the request survives a failure
+(#30, FM-18), not a YouTube self-pause (only YouTube can tell the two apart).
+Removing an established station autoplays only while it plays. PRs #42, #45.
 
 ## 2026-10-08 Sync codefm-website after every app release
 
