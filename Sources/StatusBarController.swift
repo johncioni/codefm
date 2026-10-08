@@ -101,9 +101,9 @@ final class StatusBarController: NSObject {
         self.catalog = updated
         liquidGlassPanel?.allStreams = StreamHealthMonitor.shared.available(in: updated.streams)
         // If the current stream is gone after a remote refresh, swap to the resolved
-        // default. Preserve a provisional stream's play request; otherwise resume only
-        // if the previous stream was playing. If the current stream is still there,
-        // apply its refreshed entry.
+        // default. Preserve a provisional stream's play request unless the player
+        // paused itself; otherwise resume only if the previous stream was playing.
+        // If the current stream is still there, apply its refreshed entry.
         if !updated.streams.contains(streamPlayer.currentStream) {
             let healthyRandom = Settings.shared.defaultStreamId == DefaultStreamResolver.randomSentinel
                 ? RandomPicker.pick(from: updated, excluding: StreamHealthMonitor.shared.unavailableIds)
@@ -112,7 +112,7 @@ final class StatusBarController: NSObject {
                 catalog: updated,
                 userDefaultId: Settings.shared.defaultStreamId
             )
-            let autoplay = isLaunchStreamProvisional ? streamPlayer.isPlaybackRequested : streamPlayer.state == .playing
+            let autoplay = isLaunchStreamProvisional ? streamPlayer.wantsPlayback : streamPlayer.state == .playing
             streamPlayer.load(stream: newDefault, autoplay: autoplay)
             if isLaunchStreamProvisional && !autoplay {
                 streamPlayer.prefetch()
