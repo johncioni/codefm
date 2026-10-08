@@ -67,7 +67,7 @@ final class WhatsNewWindow: NSWindow {
                 "Long buffering hangs now reset cleanly so the next play tries fresh.",
             ]),
         ]),
-        Release(version: "1.3", date: "5/12/26", isLatest: false, entries: [
+        Release(version: "1.3", date: "5/13/26", isLatest: false, entries: [
             (tag: "IMPROVED", tagColor: .systemBlue, items: [
                 "New Liquid Glass design — frosted menu with an inline volume slider, modern toggles, and clearer keyboard shortcut hints.",
                 "Menu bar icon scaled up to feel more at home next to other system icons.",
