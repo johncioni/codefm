@@ -8,13 +8,13 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     private static let bufferingHangTimeout: TimeInterval = 15
     private static let playerSize: CGFloat = 200
 
-    private let originalVideoId: String
     private var videoId: String
     private let channelLiveUrl: URL
 
     private var webView: WKWebView?
     private var playerWindow: NSWindow?
     private var isPlayerReady = false
+    private var isPlayRequested = false
     private var shouldPlayWhenReady = false
     private var loadFailed = false
     private var didTryChannelLiveFallback = false
@@ -32,7 +32,6 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     }
 
     init(videoId: String, channelLiveUrl: URL) {
-        self.originalVideoId = videoId
         self.videoId = videoId
         self.channelLiveUrl = channelLiveUrl
         super.init()
@@ -41,6 +40,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     deinit { teardownWebView() }
 
     func play() {
+        isPlayRequested = true
         if webView != nil && loadFailed { teardownWebView() }
         shouldPlayWhenReady = true
         state = .loading
@@ -50,6 +50,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     }
 
     func stop() {
+        isPlayRequested = false
         shouldPlayWhenReady = false
         cancelPlaybackTimer()
         cancelBufferTimer()
@@ -131,8 +132,8 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
                     self.cancelPlaybackTimer()
                     self.cancelBufferTimer()
                     self.teardownWebView()
-                    self.shouldPlayWhenReady = true
-                    self.startPlaybackTimer()
+                    self.shouldPlayWhenReady = self.isPlayRequested
+                    if self.isPlayRequested { self.startPlaybackTimer() }
                     self.loadPlayerIfNeeded()
                 } else {
                     self.state = .offline
