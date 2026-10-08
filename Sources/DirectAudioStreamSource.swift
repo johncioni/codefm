@@ -13,6 +13,7 @@ final class DirectAudioStreamSource: NSObject, StreamSource {
     private var timeControlObservation: NSKeyValueObservation?
     private var statusObservation: NSKeyValueObservation?
     private var resolveTask: URLSessionDataTask?
+    private var resolveGeneration = 0
     private var bufferTimer: Timer?
     private var isDisposed = false
 
@@ -45,6 +46,7 @@ final class DirectAudioStreamSource: NSObject, StreamSource {
     func stop() {
         // Cancel any in-flight playlist resolve; otherwise its completion
         // handler builds a fresh AVPlayer and resumes playback after stop.
+        resolveGeneration += 1
         resolveTask?.cancel()
         resolveTask = nil
         player?.pause()
@@ -54,6 +56,7 @@ final class DirectAudioStreamSource: NSObject, StreamSource {
 
     func dispose() {
         isDisposed = true
+        resolveGeneration += 1
         resolveTask?.cancel()
         resolveTask = nil
         timeControlObservation?.invalidate()
@@ -74,18 +77,20 @@ final class DirectAudioStreamSource: NSObject, StreamSource {
     }
 
     private func resolveAndPlay() {
+        resolveGeneration += 1
+        let generation = resolveGeneration
         resolveTask?.cancel()
         var request = URLRequest(url: url)
         request.timeoutInterval = 5
         let task = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
             guard let self else { return }
-            self.resolveTask = nil
 
             if let error {
                 if (error as? URLError)?.code == .cancelled { return }
                 Self.logger.warning("Playlist fetch failed: \(error.localizedDescription)")
                 DispatchQueue.main.async { [weak self] in
-                    guard let self, !self.isDisposed else { return }
+                    guard let self, !self.isDisposed, self.resolveGeneration == generation else { return }
+                    self.resolveTask = nil
                     self.state = .offline
                 }
                 return
@@ -97,14 +102,16 @@ final class DirectAudioStreamSource: NSObject, StreamSource {
             else {
                 Self.logger.warning("Could not parse playlist from \(self.url)")
                 DispatchQueue.main.async { [weak self] in
-                    guard let self, !self.isDisposed else { return }
+                    guard let self, !self.isDisposed, self.resolveGeneration == generation else { return }
+                    self.resolveTask = nil
                     self.state = .offline
                 }
                 return
             }
 
             DispatchQueue.main.async { [weak self] in
-                guard let self, !self.isDisposed else { return }
+                guard let self, !self.isDisposed, self.resolveGeneration == generation else { return }
+                self.resolveTask = nil
                 self.startPlayback(with: resolved)
             }
         }
