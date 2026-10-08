@@ -9,7 +9,12 @@ final class WhatsNewWindow: NSWindow {
     }
 
     private static let releases: [Release] = [
-        Release(version: "1.4.1", date: "10/8/26", isLatest: true, entries: [
+        Release(version: "1.4.2", date: "10/8/26", isLatest: true, entries: [
+            (tag: "FIXED", tagColor: .systemGreen, items: [
+                "A stopped YouTube station no longer starts playing by itself when the app moves it to the channel's new live broadcast.",
+            ]),
+        ]),
+        Release(version: "1.4.1", date: "10/8/26", isLatest: false, entries: [
             (tag: "FIXED", tagColor: .systemGreen, items: [
                 "Random at launch switches away from offline stations until playback starts or you choose a station.",
                 "Offline stations stay hidden from the Stream menu after the station list refreshes, and random replacements skip them when another station is available.",

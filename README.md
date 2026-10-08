@@ -64,6 +64,11 @@ The app is ad-hoc signed and not notarized. On macOS 15 or later, open the app o
 
 ## Changelog
 
+### 1.4.2 — 2026-10-08
+
+**Fixed**
+- A stopped YouTube station no longer starts playing by itself when the app moves it to the channel's new live broadcast.
+
 ### 1.4.1 — 2026-10-08
 
 **Fixed**

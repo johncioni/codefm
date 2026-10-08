@@ -7,9 +7,9 @@
     <key>CFBundleIdentifier</key>
     <string>com.johncioni.codefm</string>
     <key>CFBundleVersion</key>
-    <string>10</string>
+    <string>11</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.4.1</string>
+    <string>1.4.2</string>
     <key>CFBundleExecutable</key>
     <string>Code FM</string>
     <key>CFBundlePackageType</key>
