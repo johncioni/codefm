@@ -102,7 +102,8 @@ final class StatusBarController: NSObject {
         liquidGlassPanel?.allStreams = StreamHealthMonitor.shared.available(in: updated.streams)
         // If the current stream is gone after a remote refresh, swap to the resolved
         // default. Preserve a provisional stream's play request unless the player
-        // paused itself; otherwise resume only if the previous stream was playing.
+        // paused itself; otherwise resume only if the previous stream was loading
+        // or playing.
         // If the current stream is still there, apply its refreshed entry.
         if !updated.streams.contains(streamPlayer.currentStream) {
             let healthyRandom = Settings.shared.defaultStreamId == DefaultStreamResolver.randomSentinel
@@ -112,7 +113,11 @@ final class StatusBarController: NSObject {
                 catalog: updated,
                 userDefaultId: Settings.shared.defaultStreamId
             )
-            let autoplay = isLaunchStreamProvisional ? streamPlayer.wantsPlayback : streamPlayer.state == .playing
+            let autoplay = RemovedStreamAutoplay.decide(
+                isProvisional: isLaunchStreamProvisional,
+                wantsPlayback: streamPlayer.wantsPlayback,
+                state: streamPlayer.state
+            )
             streamPlayer.load(stream: newDefault, autoplay: autoplay)
             if isLaunchStreamProvisional && !autoplay {
                 streamPlayer.prefetch()
@@ -330,5 +335,16 @@ final class StatusBarController: NSObject {
 
         view.layer?.addSublayer(container)
         return view
+    }
+}
+
+/// Whether the station that replaces one a catalog refresh removed should
+/// play. The provisional launch pick keeps the app's play request unless
+/// the player paused itself; an established station carries over only an
+/// active attempt (loading or playing), so one that failed is replaced
+/// silently.
+enum RemovedStreamAutoplay {
+    static func decide(isProvisional: Bool, wantsPlayback: Bool, state: PlayerState) -> Bool {
+        isProvisional ? wantsPlayback : (state == .loading || state == .playing)
     }
 }
