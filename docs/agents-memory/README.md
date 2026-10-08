@@ -31,5 +31,11 @@ Entry format, newest first:
 Two to four lines: what was decided or ruled out, and why. PR #123.
 ```
 
+Each entry records what a future agent would otherwise get wrong, and
+why: a constraint, a rejected approach, a measured result. It does not
+restate what the code or tests show beyond the name needed to find the
+code. When a new entry supersedes an older one, the same PR edits or
+deletes the older one, so no two entries disagree.
+
 Keep each file under about 100 lines. When promoting, drop entries the code
 now makes obvious. Nothing here requires a `HANDOFF.md` checkpoint.
