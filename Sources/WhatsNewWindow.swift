@@ -9,7 +9,13 @@ final class WhatsNewWindow: NSWindow {
     }
 
     private static let releases: [Release] = [
-        Release(version: "1.4", date: "10/7/26", isLatest: true, entries: [
+        Release(version: "1.4.1", date: "10/8/26", isLatest: true, entries: [
+            (tag: "FIXED", tagColor: .systemGreen, items: [
+                "Random at launch switches away from offline stations until playback starts or you choose a station.",
+                "Offline stations stay hidden from the Stream menu after the station list refreshes, and random replacements skip them when another station is available.",
+            ]),
+        ]),
+        Release(version: "1.4", date: "10/7/26", isLatest: false, entries: [
             (tag: "NEW", tagColor: .systemOrange, items: [
                 "Claude FM is now Code FM and installs as a new app. Your Claude FM settings and login item do not carry over.",
                 "Choose from 19 live stations across lo-fi, jazzhop, synthwave, ambient and brand groups, with 11 YouTube streams and 8 SomaFM audio stations. The Stream menu groups stations by genre, offers Random, and opens the Stream Library.",

@@ -37,7 +37,9 @@ cp -r "build/Code FM.app" /Applications/
 
 ### Pre-built
 
-Copy `Code FM.app` to `/Applications/`. On first launch, right-click the app and select "Open" — macOS requires this once for apps not signed with a Developer ID certificate.
+Download `Code-FM-<version>.zip` from the [latest release](https://github.com/johncioni/codefm/releases/latest), unzip it, and move `Code FM.app` to `/Applications/`.
+
+The app is ad-hoc signed and not notarized. On macOS 15 or later, open the app once, then click **Open Anyway** in **System Settings > Privacy & Security**. On macOS 13 or 14, right-click the app and choose **Open**.
 
 ## Usage
 
@@ -50,16 +52,23 @@ Copy `Code FM.app` to `/Applications/`. On first launch, right-click the app and
 ### Menu options
 
 - **Now Playing card** — title, status indicator, play/pause button
+- **Stream** — shows the current station and opens the station picker: Random, stations grouped by genre, and Open Stream Library
 - **Volume slider** — drag to adjust audio level
 - **Play at Start** — auto-play when the app launches
 - **Start at Login** — register as a login item
 - **Enable Global Hotkey** — toggle the hotkey on/off
-- **Configure Hotkey** — set a custom global keyboard shortcut
+- **Configure Hotkey** — opens Settings > General to set a custom global keyboard shortcut
 - **About Code FM** — app info and version
 - **What's New** — changelog
 - **Quit** — exit the app
 
 ## Changelog
+
+### 1.4.1 — 2026-10-08
+
+**Fixed**
+- Random at launch switches away from offline stations until playback starts or you choose a station.
+- Offline stations stay hidden from the Stream menu after a catalog refresh, and random replacements skip them when another station is available.
 
 ### 1.4 — 2026-10-07
 
@@ -144,7 +153,7 @@ Code FM plays a curated catalog of live stations defined in `Resources/streams.j
 
 YouTube live stations play through an embedded WebKit view running the YouTube iframe API. The view stays off-screen and renders no video. SomaFM stations are direct audio streams that AVPlayer plays, after resolving a `.pls` or `.m3u` playlist to its stream URL when the catalog points at one.
 
-At launch, a health monitor probes every station. The menu, Settings and the random picker refresh from its results when a station goes down or comes back.
+At launch, a health monitor probes every station. The menu and Settings refresh when a station goes down or comes back. Random picks from the menu and after a catalog refresh skip known offline stations when another station is available. A random launch station is provisional until it starts playing or you choose a station yourself: if it goes offline, the app picks another available station, preserving whether you asked it to play. If none are available, it keeps the current station.
 
 ## Building
 

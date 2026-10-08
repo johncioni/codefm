@@ -5,8 +5,9 @@ import os
 /// - Proactive: probes every stream at launch (and on demand) over URLSession.
 /// - Reactive: callers report runtime failures via `markUnavailable(_:)` and
 ///   recoveries via `markAvailable(_:)`.
-/// Posts `.codeFMStreamHealthChanged` whenever the set changes so UI surfaces
-/// (menubar submenu, Settings library, random picker) can refresh.
+/// Posts `.codeFMStreamHealthChanged` whenever the set changes so the menu and
+/// Settings library refresh and a provisional random launch can replace an offline
+/// station. Random picks consult known availability, with a fallback if all are offline.
 final class StreamHealthMonitor {
     static let shared = StreamHealthMonitor()
 

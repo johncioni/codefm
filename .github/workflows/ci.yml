@@ -1,13 +1,10 @@
 name: ci
 
-# This repo originally had NO build or test CI: a review bot was the only
-# required check, so branch protection was guarding a repo where nothing
-# verified that the code compiles. Closes FM-7.
+# This repo originally had no build or test CI. Closes FM-7.
 #
-# SwiftLint is NOT run here. Until 2026-08-30 CodeRabbit linted each PR's
-# changed Swift files; that account is cancelled, so Swift lint currently has
-# no automated runner. .swiftlint.yml is written for incremental adoption, so
-# adding a whole-repo lint job needs its own ticket rather than a drive-by.
+# SwiftLint is not run here or by any automated runner (Linear FM-8).
+# .swiftlint.yml is written for incremental adoption, so adding a whole-repo
+# lint job needs its own ticket.
 on:
   pull_request:
   push:
