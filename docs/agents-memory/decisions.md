@@ -2,6 +2,27 @@
 
 Newest first. Format and rules: `README.md` in this directory.
 
+## 2026-10-08 Sync codefm-website after every app release
+
+Nothing syncs the site's `content/` on its own: someone runs that repo's
+`scripts/sync-content.sh` and merges the PR. It was missed from 1.3.2 until
+1.4.4, so the site kept a stale changelog and the 19-station catalog. John
+asked for the sync after 1.4.4; do it after each release. codefm-website #52.
+
+## 2026-10-08 Automatic recovery needs an active attempt, not just play intent
+
+Play intent stays set after a station goes offline or the YouTube player
+pauses itself. FM-17's first process-exit rebuild keyed on intent alone, so
+it could start audio hours later on a station shown offline. An automatic
+rebuild or reload must also require `.loading` or `.playing`. PR #37.
+
+## 2026-10-08 Follow a channel's /live page only to a live broadcast
+
+A channel's /live page features one of its concurrent streams, and serves an
+upload or past stream when nothing is live. The app switches only to a
+current broadcast, and a station on a channel with several live streams
+needs `"liveFallback": false` in `streams.json`. PRs #36, #37.
+
 ## 2026-10-08 Play intent comes from StreamPlayer's commands, not source states
 
 The play request is set only where the app asks to play or stop
