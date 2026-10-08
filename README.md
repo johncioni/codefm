@@ -64,6 +64,16 @@ The app is ad-hoc signed and not notarized. On macOS 15 or later, open the app o
 
 ## Changelog
 
+### 1.4.6 — 2026-10-08
+
+**Fixed**
+- A station that starts playing before its launch availability check finishes no longer disappears from the menu if that check fails.
+- When the station list update at launch moves a station to a new stream, a late check of its old stream no longer hides the station.
+- If the station list update at launch removes your station while it is still loading, the station that replaces it now starts playing.
+- After a YouTube station pauses by itself, Code FM no longer starts playing on its own when it swaps or reloads that station at launch.
+- If the menu is open while Code FM swaps in another station, it no longer keeps showing the old station's Offline label.
+- A Settings window opened right after launch now picks up the station list update, so its play buttons use each station's current stream.
+
 ### 1.4.5 — 2026-10-08
 
 **Improved**

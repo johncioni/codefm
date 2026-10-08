@@ -9,7 +9,17 @@ final class WhatsNewWindow: NSWindow {
     }
 
     private static let releases: [Release] = [
-        Release(version: "1.4.5", date: "10/8/26", isLatest: true, entries: [
+        Release(version: "1.4.6", date: "10/8/26", isLatest: true, entries: [
+            (tag: "FIXED", tagColor: .systemGreen, items: [
+                "A station that starts playing before its launch availability check finishes no longer disappears from the menu if that check fails.",
+                "When the station list update at launch moves a station to a new stream, a late check of its old stream no longer hides the station.",
+                "If the station list update at launch removes your station while it is still loading, the station that replaces it now starts playing.",
+                "After a YouTube station pauses by itself, Code FM no longer starts playing on its own when it swaps or reloads that station at launch.",
+                "If the menu is open while Code FM swaps in another station, it no longer keeps showing the old station's Offline label.",
+                "A Settings window opened right after launch now picks up the station list update, so its play buttons use each station's current stream.",
+            ]),
+        ]),
+        Release(version: "1.4.5", date: "10/8/26", isLatest: false, entries: [
             (tag: "IMPROVED", tagColor: .systemBlue, items: [
                 "The Claude FM station is now named Anthropic — Claude FM, after its provider.",
             ]),
