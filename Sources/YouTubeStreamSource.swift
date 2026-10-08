@@ -17,7 +17,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     private var isPlayRequested = false
     private var shouldPlayWhenReady = false
     private var loadFailed = false
-    private var didTryChannelLiveFallback = false
+    private var fallbackGate = LiveFallbackGate()
     private var playbackTimer: Timer?
     private var bufferTimer: Timer?
 
@@ -40,6 +40,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     deinit { teardownWebView() }
 
     func play() {
+        fallbackGate.reset()
         isPlayRequested = true
         if webView != nil && loadFailed { teardownWebView() }
         shouldPlayWhenReady = true
@@ -71,10 +72,11 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     // MARK: - Internal player wiring (moved from old StreamPlayer.swift)
 
     private func playLoadedPlayer() {
+        guard let webView else { return }
         shouldPlayWhenReady = false
         sendVolumeToPlayer()
         evaluatePlayerScript("window.CodeFMPlayer && window.CodeFMPlayer.play();") { [weak self] ok in
-            guard let self, !ok else { return }
+            guard let self, self.webView === webView, !ok else { return }
             self.loadFailed = true
             self.shouldPlayWhenReady = false
             self.cancelPlaybackTimer()
@@ -119,10 +121,14 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     }
 
     private func handleLoadFailure() {
-        if !didTryChannelLiveFallback {
-            didTryChannelLiveFallback = true
+        switch fallbackGate.failure() {
+        case .ignore:
+            return
+        case .goOffline:
+            state = .offline
+        case let .resolve(token):
             resolveCurrentLiveVideoId { [weak self] newId in
-                guard let self else { return }
+                guard let self, self.fallbackGate.complete(token: token) else { return }
                 if let newId, newId != self.videoId {
                     // Reload the iframe player with the resolved videoId so our
                     // CodeFMPlayer JS shim is still in place.
@@ -132,21 +138,21 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
                     self.cancelPlaybackTimer()
                     self.cancelBufferTimer()
                     self.teardownWebView()
-                    self.shouldPlayWhenReady = self.isPlayRequested
                     if self.isPlayRequested {
+                        self.shouldPlayWhenReady = true
+                        self.state = .loading
                         self.startPlaybackTimer()
                     } else {
+                        self.shouldPlayWhenReady = false
                         // A silent reload never reaches "playing", so keep the fallback available for the next play attempt.
-                        self.didTryChannelLiveFallback = false
+                        self.fallbackGate.rearm()
                     }
                     self.loadPlayerIfNeeded()
                 } else {
                     self.state = .offline
                 }
             }
-            return
         }
-        state = .offline
     }
 
     /// Fetch the channel/live page and extract the currently-broadcasting videoId.
@@ -241,7 +247,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
         case "state":
             guard let stateName = message["state"] as? String else { return }
             updateState(named: stateName)
-        case "error":
+        case "error", "ended":
             isPlayerReady = false
             loadFailed = true
             handleLoadFailure()
@@ -255,14 +261,12 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
             cancelPlaybackTimer()
             cancelBufferTimer()
             loadFailed = false
-            didTryChannelLiveFallback = false
+            fallbackGate.reset()
             state = .playing
         case "loading":
             if state == .playing { startBufferTimer() } else { state = .loading }
         case "stopped":
             cancelPlaybackTimer(); cancelBufferTimer(); state = .stopped
-        case "offline":
-            cancelPlaybackTimer(); cancelBufferTimer(); state = .offline
         default: break
         }
     }
@@ -341,7 +345,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
                     switch (event.data) {
                     case YT.PlayerState.PLAYING: post({ type: "state", state: "playing" }); break;
                     case YT.PlayerState.BUFFERING: post({ type: "state", state: "loading" }); break;
-                    case YT.PlayerState.ENDED: isCued = false; post({ type: "state", state: "offline" }); break;
+                    case YT.PlayerState.ENDED: isCued = false; post({ type: "ended" }); break;
                     case YT.PlayerState.PAUSED: isCued = true; post({ type: "state", state: "stopped" }); break;
                     case YT.PlayerState.CUED:
                       isCued = true;
@@ -373,6 +377,10 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        guard isPlayRequested else {
+            teardownWebView()
+            return
+        }
         loadFailed = true
         shouldPlayWhenReady = false
         cancelPlaybackTimer()
@@ -395,5 +403,41 @@ private final class WeakScriptMessageHandler: NSObject, WKScriptMessageHandler {
     init(_ delegate: WKScriptMessageHandler) { self.delegate = delegate }
     func userContentController(_ ucc: WKUserContentController, didReceive message: WKScriptMessage) {
         delegate?.userContentController(ucc, didReceive: message)
+    }
+}
+
+/// Bookkeeping for the one-shot channel-live fallback: at most one resolve in
+/// flight, and a resolve's result is used only if nothing superseded it.
+struct LiveFallbackGate {
+    enum FailureAction: Equatable { case resolve(token: Int), ignore, goOffline }
+
+    private var didUseFallback = false
+    private var nextToken = 0
+    private var inFlightToken: Int?
+
+    mutating func failure() -> FailureAction {
+        guard inFlightToken == nil else { return .ignore }
+        guard !didUseFallback else { return .goOffline }
+        didUseFallback = true
+        nextToken += 1
+        inFlightToken = nextToken
+        return .resolve(token: nextToken)
+    }
+
+    mutating func complete(token: Int) -> Bool {
+        guard inFlightToken == token else { return false }
+        inFlightToken = nil
+        return true
+    }
+
+    /// Called when playback reaches "playing" or a new play attempt starts:
+    /// supersede any resolve in flight and make the fallback available again.
+    mutating func reset() {
+        inFlightToken = nil
+        rearm()
+    }
+
+    mutating func rearm() {
+        didUseFallback = false
     }
 }
