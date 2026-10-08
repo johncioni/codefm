@@ -26,7 +26,7 @@ enum Subgenre: String, Codable {
     }
 }
 
-enum StreamType {
+enum StreamType: Equatable {
     case youtubeLive(videoId: String, channelLiveUrl: URL, liveFallback: Bool)
     case directAudio(url: URL)
 }
