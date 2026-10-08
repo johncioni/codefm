@@ -5,16 +5,16 @@ Newest first. Format and rules: `README.md` in this directory.
 ## 2026-10-08 Sync codefm-website after every app release
 
 Nothing syncs the site's `content/` on its own: someone runs that repo's
-`scripts/sync-content.sh` and merges the PR. It was missed from 1.3.2 until
-1.4.4, so the site kept a stale changelog and the 19-station catalog. John
-asked for the sync after 1.4.4; do it after each release. codefm-website #52.
+`scripts/sync-content.sh` and merges the PR. It lapsed from 1.3.2 to 1.4.4,
+leaving a stale changelog and the 19-station catalog. John asked for a sync
+after 1.4.4; do one after each release. johncioni/codefm-website#52.
 
-## 2026-10-08 Automatic recovery needs an active attempt, not just play intent
+## 2026-10-08 Rebuild after a web-process exit only during an active attempt
 
 Play intent stays set after a station goes offline or the YouTube player
-pauses itself. FM-17's first process-exit rebuild keyed on intent alone, so
-it could start audio hours later on a station shown offline. An automatic
-rebuild or reload must also require `.loading` or `.playing`. PR #37.
+pauses itself, so FM-17's first process-exit rebuild, keyed on intent alone,
+could start audio hours later on a station shown offline: it also needs
+`.loading` or `.playing`. The silent prefetch fallback is not bound. PR #37.
 
 ## 2026-10-08 Follow a channel's /live page only to a live broadcast
 
