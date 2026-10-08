@@ -7,7 +7,7 @@ Newest first. Format and rules: `README.md` in this directory.
 A refresh reload and the provisional launch pick's replacement or removal
 autoplay on `StreamPlayer.wantsPlayback`: the request survives a failure
 (#30, FM-18), not a YouTube self-pause (only YouTube can tell the two apart).
-Removing an established station autoplays only while it plays. PRs #42, #45.
+An established station's removal needs loading or playing. PRs #42, #45, #47.
 
 ## 2026-10-08 Sync codefm-website after every app release
 
