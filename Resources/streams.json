@@ -165,7 +165,7 @@
     },
     {
       "id": "claude-fm",
-      "displayName": "Claude FM",
+      "displayName": "Anthropic — Claude FM",
       "subgenre": "brand",
       "type": "youtube_live",
       "videoId": "tRsQsTMvPNg",
