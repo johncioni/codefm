@@ -26,4 +26,16 @@ final class ProbeResultPolicyTests: XCTestCase {
 
         XCTAssertTrue(ProbeResultPolicy.shouldApply(probed: youtube, current: nil))
     }
+
+    func test_probeWithNoPlayerReportApplies() {
+        XCTAssertTrue(ProbeResultPolicy.startedAfterPlayerReport(startedAt: 5, lastPlayerReport: nil))
+    }
+
+    func test_probeStartedAfterPlayerReportApplies() {
+        XCTAssertTrue(ProbeResultPolicy.startedAfterPlayerReport(startedAt: 5, lastPlayerReport: 3))
+    }
+
+    func test_probeStartedBeforePlayerReportIsIgnored() {
+        XCTAssertFalse(ProbeResultPolicy.startedAfterPlayerReport(startedAt: 5, lastPlayerReport: 7))
+    }
 }

@@ -16,6 +16,11 @@ final class StreamHealthMonitor {
     private var unavailable: Set<String> = []
     // Latest definition checkAll saw for each station id.
     private var definitions: [String: StreamType] = [:]
+    // Numbers probe starts and player reports in one order, so a probe
+    // that started before the player's latest report on its station is
+    // known to be older.
+    private var sequence = 0
+    private var lastPlayerReport: [String: Int] = [:]
 
     /// User agent string used by all probes. Some YouTube edge servers serve a
     /// JS-less HTML body when the request looks like a bot, which trips our
@@ -38,25 +43,24 @@ final class StreamHealthMonitor {
         return streams.filter { !blocked.contains($0.id) }
     }
 
+    /// The player's report that a station failed. It outranks any probe of
+    /// the station that started before it.
     func markUnavailable(_ id: String) {
         let didChange: Bool = queue.sync(flags: .barrier) {
-            let inserted = unavailable.insert(id).inserted
-            return inserted
+            recordPlayerReport(id)
+            return unavailable.insert(id).inserted
         }
-        if didChange {
-            logger.info("Marked stream unavailable: \(id, privacy: .public)")
-            postChange()
-        }
+        if didChange { announce(id, available: false) }
     }
 
+    /// The player's report that a station is playing. It outranks any probe
+    /// of the station that started before it.
     func markAvailable(_ id: String) {
         let didChange: Bool = queue.sync(flags: .barrier) {
-            unavailable.remove(id) != nil
+            recordPlayerReport(id)
+            return unavailable.remove(id) != nil
         }
-        if didChange {
-            logger.info("Recovered stream: \(id, privacy: .public)")
-            postChange()
-        }
+        if didChange { announce(id, available: true) }
     }
 
     /// Probe every stream in the catalog. Each probe runs independently; the
@@ -79,11 +83,15 @@ final class StreamHealthMonitor {
     }
 
     private func probe(_ stream: Stream) {
+        let startedAt: Int = queue.sync(flags: .barrier) {
+            sequence += 1
+            return sequence
+        }
         switch stream.type {
         case let .youtubeLive(videoId, channelLiveUrl, liveFallback):
-            probeYouTube(stream: stream, videoId: videoId, channelLiveUrl: channelLiveUrl, liveFallback: liveFallback)
+            probeYouTube(stream: stream, startedAt: startedAt, videoId: videoId, channelLiveUrl: channelLiveUrl, liveFallback: liveFallback)
         case let .directAudio(url):
-            probeDirectAudio(stream: stream, url: url)
+            probeDirectAudio(stream: stream, startedAt: startedAt, url: url)
         }
     }
 
@@ -111,34 +119,34 @@ final class StreamHealthMonitor {
         html.contains(#""status":"OK""#) && html.contains(#""isLive":true"#)
     }
 
-    private func probeYouTube(stream: Stream, videoId: String, channelLiveUrl: URL, liveFallback: Bool) {
+    private func probeYouTube(stream: Stream, startedAt: Int, videoId: String, channelLiveUrl: URL, liveFallback: Bool) {
         guard let url = URL(string: "https://www.youtube.com/watch?v=\(videoId)") else {
             // Pinned videoId is malformed — use the channel only when allowed.
             if liveFallback {
-                probeChannelLive(stream: stream, channelLiveUrl: channelLiveUrl)
+                probeChannelLive(stream: stream, startedAt: startedAt, channelLiveUrl: channelLiveUrl)
             } else {
-                applyResult(stream, available: false)
+                applyResult(stream, startedAt: startedAt, available: false)
             }
             return
         }
         fetchIndicatesLive(url: url) { [weak self] live in
             guard let self else { return }
             if live {
-                self.applyResult(stream, available: true)
+                self.applyResult(stream, startedAt: startedAt, available: true)
             } else if liveFallback {
                 // A stale/ended pinned video can recover through the channel's
                 // current broadcast only when the catalog allows that fallback,
                 // mirroring YouTubeStreamSource.resolveCurrentLiveVideoId.
-                self.probeChannelLive(stream: stream, channelLiveUrl: channelLiveUrl)
+                self.probeChannelLive(stream: stream, startedAt: startedAt, channelLiveUrl: channelLiveUrl)
             } else {
-                self.applyResult(stream, available: false)
+                self.applyResult(stream, startedAt: startedAt, available: false)
             }
         }
     }
 
-    private func probeChannelLive(stream: Stream, channelLiveUrl: URL) {
+    private func probeChannelLive(stream: Stream, startedAt: Int, channelLiveUrl: URL) {
         fetchIndicatesLive(url: channelLiveUrl, predicate: Self.htmlShowsLiveBroadcast) { [weak self] live in
-            self?.applyResult(stream, available: live)
+            self?.applyResult(stream, startedAt: startedAt, available: live)
         }
     }
 
@@ -155,7 +163,7 @@ final class StreamHealthMonitor {
         }.resume()
     }
 
-    private func probeDirectAudio(stream: Stream, url: URL) {
+    private func probeDirectAudio(stream: Stream, startedAt: Int, url: URL) {
         var request = URLRequest(url: url)
         request.timeoutInterval = 5
         request.setValue(Self.userAgent, forHTTPHeaderField: "User-Agent")
@@ -163,17 +171,38 @@ final class StreamHealthMonitor {
             guard let self else { return }
             let ok = (response as? HTTPURLResponse)?.statusCode == 200
                 && (data.map { String(data: $0, encoding: .utf8)?.contains("File1=") ?? false } ?? false)
-            self.applyResult(stream, available: ok)
+            self.applyResult(stream, startedAt: startedAt, available: ok)
         }.resume()
     }
 
-    private func applyResult(_ stream: Stream, available: Bool) {
-        let current = queue.sync { definitions[stream.id] }
-        guard ProbeResultPolicy.shouldApply(probed: stream.type, current: current) else {
-            logger.info("Ignored a probe of a replaced definition: \(stream.id, privacy: .public)")
+    private func applyResult(_ stream: Stream, startedAt: Int, available: Bool) {
+        let didChange: Bool? = queue.sync(flags: .barrier) {
+            guard ProbeResultPolicy.shouldApply(probed: stream.type, current: definitions[stream.id]),
+                  ProbeResultPolicy.startedAfterPlayerReport(startedAt: startedAt, lastPlayerReport: lastPlayerReport[stream.id])
+            else { return nil }
+            return available ? unavailable.remove(stream.id) != nil : unavailable.insert(stream.id).inserted
+        }
+        guard let didChange else {
+            logger.info("Ignored a stale probe: \(stream.id, privacy: .public)")
             return
         }
-        if available { markAvailable(stream.id) } else { markUnavailable(stream.id) }
+        if didChange { announce(stream.id, available: available) }
+    }
+
+    /// Numbers a player report in the order probes start. Call only inside a
+    /// barrier on `queue`.
+    private func recordPlayerReport(_ id: String) {
+        sequence += 1
+        lastPlayerReport[id] = sequence
+    }
+
+    private func announce(_ id: String, available: Bool) {
+        if available {
+            logger.info("Recovered stream: \(id, privacy: .public)")
+        } else {
+            logger.info("Marked stream unavailable: \(id, privacy: .public)")
+        }
+        postChange()
     }
 
     private func postChange() {
@@ -190,8 +219,14 @@ extension Notification.Name {
 /// Whether a finished probe may change a station's health. Health is kept
 /// by station id, so a probe of a definition the catalog has since replaced
 /// (a re-pinned video, say) must not overwrite the current one's result.
+/// A probe that started before the player's latest report on the station must
+/// not override it either, because what the player saw is newer.
 enum ProbeResultPolicy {
     static func shouldApply(probed: StreamType, current: StreamType?) -> Bool {
         current == nil || current == probed
+    }
+
+    static func startedAfterPlayerReport(startedAt: Int, lastPlayerReport: Int?) -> Bool {
+        lastPlayerReport.map { $0 < startedAt } ?? true
     }
 }
