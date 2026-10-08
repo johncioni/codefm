@@ -64,6 +64,16 @@ The app is ad-hoc signed and not notarized. On macOS 15 or later, open the app o
 
 ## Changelog
 
+### 1.4.5 — 2026-10-08
+
+**Improved**
+- The Claude FM station is now named Anthropic — Claude FM, after its provider.
+
+**Fixed**
+- When the station list updates at launch, the station you have loaded picks up its new stream or name right away instead of at the next launch. A stopped station stays stopped.
+- A YouTube station that pauses by itself no longer starts playing again on its own when Code FM finds the channel's new live stream.
+- A YouTube station resumed with a media key no longer shows as playing with no sound after macOS ends its background web process. One click plays it again.
+
 ### 1.4.4 — 2026-10-08
 
 **Improved**
