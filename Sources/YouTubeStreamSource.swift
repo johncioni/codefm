@@ -137,28 +137,30 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
         case let .resolve(token):
             resolveCurrentLiveVideoId { [weak self] newId in
                 guard let self, self.fallbackGate.complete(token: token) else { return }
-                if let newId, newId != self.videoId {
+                switch LiveLookupAction.decide(resolvedId: newId, currentId: self.videoId, isPlayRequested: self.isPlayRequested, state: self.state) {
+                case .goOffline:
+                    self.state = .offline
+                case let .reload(resolvedId, autoplay):
                     // Reload the iframe player with the resolved videoId so our
                     // CodeFMPlayer JS shim is still in place.
-                    self.videoId = newId
+                    self.videoId = resolvedId
                     self.loadFailed = false
                     self.isPlayerReady = false
                     self.cancelPlaybackTimer()
                     self.cancelBufferTimer()
                     self.teardownWebView()
-                    if self.isPlayRequested {
+                    if autoplay {
                         self.shouldPlayWhenReady = true
                         self.state = .loading
                         self.startPlaybackTimer()
                     } else {
                         self.shouldPlayWhenReady = false
-                        // A later failure of this unrequested view should look up
+                        self.showStoppedAfterTeardown()
+                        // A later failure of this silent view should look up
                         // the channel again instead of going offline.
                         self.fallbackGate.rearm()
                     }
                     self.loadPlayerIfNeeded()
-                } else {
-                    self.state = .offline
                 }
             }
         }
@@ -233,6 +235,12 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
         playerWindow = nil
         isPlayerReady = false
         loadFailed = false
+    }
+
+    /// A dropped view cannot play: outside an active play attempt, show
+    /// stopped instead of loading or playing. An offline station stays offline.
+    private func showStoppedAfterTeardown() {
+        if state == .loading || state == .playing { state = .stopped }
     }
 
     private func sendVolumeToPlayer() {
@@ -391,6 +399,7 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
         switch ProcessExitAction.decide(isPlayRequested: isPlayRequested, state: state, didRebuild: didRebuildAfterProcessExit) {
         case .teardown:
             teardownWebView()
+            showStoppedAfterTeardown()
         case .rebuild:
             didRebuildAfterProcessExit = true
             fallbackGate.reset()
@@ -471,5 +480,18 @@ enum ProcessExitAction: Equatable {
     static func decide(isPlayRequested: Bool, state: PlayerState, didRebuild: Bool) -> ProcessExitAction {
         guard isPlayRequested, state == .loading || state == .playing else { return .teardown }
         return didRebuild ? .fail : .rebuild
+    }
+}
+
+/// What a channel lookup's result means for the player. A new live video
+/// plays only during an active play attempt (requested, and loading or
+/// playing); otherwise the view reloads silently, as a prefetch does.
+enum LiveLookupAction: Equatable {
+    case goOffline
+    case reload(videoId: String, autoplay: Bool)
+
+    static func decide(resolvedId: String?, currentId: String, isPlayRequested: Bool, state: PlayerState) -> LiveLookupAction {
+        guard let resolvedId, resolvedId != currentId else { return .goOffline }
+        return .reload(videoId: resolvedId, autoplay: isPlayRequested && (state == .loading || state == .playing))
     }
 }
