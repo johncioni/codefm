@@ -1,5 +1,5 @@
-# SwiftLint config. No automated runner since 2026-08-30 (CodeRabbit removed);
-# runnable locally via `swiftlint` and pending a CI lint job (follow-up ticket).
+# SwiftLint config. Nothing runs it automatically yet (Linear FM-8).
+# Runnable locally via `swiftlint`.
 #
 # Deliberately conservative starter: opt in to a small set of high-signal
 # correctness/safety rules only (no style, formatting, or line-length rules), so

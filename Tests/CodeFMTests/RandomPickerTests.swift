@@ -33,4 +33,43 @@ final class RandomPickerTests: XCTestCase {
         }
         XCTAssertEqual(seen.count, 5, "Every stream should be picked at least once over 1000 trials")
     }
+
+    func test_pickExcludesUnavailableIds() {
+        let catalog = makeCatalog(ids: ["a", "b", "c"])
+        XCTAssertEqual(RandomPicker.pick(from: catalog, excluding: ["a", "c"])?.id, "b")
+    }
+
+    func test_pickReturnsNilWhenEverythingIsExcluded() {
+        let catalog = makeCatalog(ids: ["a", "b"])
+        XCTAssertNil(RandomPicker.pick(from: catalog, excluding: ["a", "b"]))
+    }
+
+    func test_provisionalOfflineStreamGetsAvailableReplacement() {
+        let catalog = makeCatalog(ids: ["a", "b", "c"])
+        XCTAssertEqual(RandomLaunchPolicy.replacement(
+            in: catalog, currentStreamId: "a", unavailableIds: ["a", "b"], isProvisional: true
+        )?.id, "c")
+    }
+
+    func test_settledStreamIsNotReplaced() {
+        let catalog = makeCatalog(ids: ["a", "b"])
+        XCTAssertNil(RandomLaunchPolicy.replacement(
+            in: catalog, currentStreamId: "a", unavailableIds: ["a"], isProvisional: false
+        ))
+    }
+
+    func test_anotherOfflineStreamDoesNotReplaceCurrentStream() {
+        let catalog = makeCatalog(ids: ["a", "b", "c"])
+        XCTAssertNil(RandomLaunchPolicy.replacement(
+            in: catalog, currentStreamId: "a", unavailableIds: ["b"], isProvisional: true
+        ))
+    }
+
+    func test_noReplacementWhenNoOtherStationIsAvailable() {
+        let catalog = makeCatalog(ids: ["a", "b"])
+        XCTAssertNil(RandomLaunchPolicy.replacement(
+            in: catalog, currentStreamId: "a", unavailableIds: ["a", "b"], isProvisional: true
+        ))
+    }
+
 }

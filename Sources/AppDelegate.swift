@@ -22,7 +22,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         streamPlayer.volume = Settings.shared.volume
         self.streamPlayer = streamPlayer
 
-        let controller = StatusBarController(streamPlayer: streamPlayer, catalog: catalog)
+        let controller = StatusBarController(
+            streamPlayer: streamPlayer,
+            catalog: catalog,
+            isLaunchStreamProvisional: Settings.shared.defaultStreamId == DefaultStreamResolver.randomSentinel
+        )
         statusBarController = controller
 
         if Settings.shared.playAtStart {

@@ -4,6 +4,8 @@ final class StatusBarController: NSObject {
     private let statusItem: NSStatusItem
     private let streamPlayer: StreamPlayer
     private var catalog: StreamCatalog
+    private var isLaunchStreamProvisional: Bool
+    private var playbackRequested = false
 
     private var aboutWindow: AboutWindow?
     private var whatsNewWindow: WhatsNewWindow?
@@ -11,9 +13,10 @@ final class StatusBarController: NSObject {
     private var spinnerView: NSView?
     private var liquidGlassPanel: LiquidGlassMenuPanel?
 
-    init(streamPlayer: StreamPlayer, catalog: StreamCatalog) {
+    init(streamPlayer: StreamPlayer, catalog: StreamCatalog, isLaunchStreamProvisional: Bool) {
         self.streamPlayer = streamPlayer
         self.catalog = catalog
+        self.isLaunchStreamProvisional = isLaunchStreamProvisional
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
 
         super.init()
@@ -28,9 +31,12 @@ final class StatusBarController: NSObject {
             case .offline:
                 StreamHealthMonitor.shared.markUnavailable(streamPlayer.currentStream.id)
             case .playing:
+                self.isLaunchStreamProvisional = false
                 StreamHealthMonitor.shared.markAvailable(streamPlayer.currentStream.id)
-            case .loading, .stopped:
-                break
+            case .loading:
+                self.playbackRequested = true
+            case .stopped:
+                self.playbackRequested = false
             }
         }
 
@@ -69,6 +75,18 @@ final class StatusBarController: NSObject {
 
     @objc private func handleStreamHealthChanged() {
         liquidGlassPanel?.allStreams = StreamHealthMonitor.shared.available(in: catalog.streams)
+        guard let replacement = RandomLaunchPolicy.replacement(
+            in: catalog,
+            currentStreamId: streamPlayer.currentStream.id,
+            unavailableIds: StreamHealthMonitor.shared.unavailableIds,
+            isProvisional: isLaunchStreamProvisional
+        ) else { return }
+
+        // Prefetch stays stopped; loading records a play request. Preserve that
+        // request across offline, where the source has already lost its loading state.
+        let autoplay = playbackRequested
+        streamPlayer.load(stream: replacement, autoplay: autoplay)
+        if !autoplay { streamPlayer.prefetch() }
     }
 
     @objc private func handleHotkeyConfigChanged() {
@@ -82,16 +100,20 @@ final class StatusBarController: NSObject {
 
     func applyUpdatedCatalog(_ updated: StreamCatalog) {
         self.catalog = updated
-        liquidGlassPanel?.allStreams = updated.streams
+        liquidGlassPanel?.allStreams = StreamHealthMonitor.shared.available(in: updated.streams)
         // If the currently-playing stream is gone after a remote refresh, swap to
         // the resolved default and continue playback if we were already playing.
         if !updated.streams.contains(streamPlayer.currentStream) {
-            let newDefault = DefaultStreamResolver.resolve(
+            let healthyRandom = Settings.shared.defaultStreamId == DefaultStreamResolver.randomSentinel
+                ? RandomPicker.pick(from: updated, excluding: StreamHealthMonitor.shared.unavailableIds)
+                : nil
+            let newDefault = healthyRandom ?? DefaultStreamResolver.resolve(
                 catalog: updated,
                 userDefaultId: Settings.shared.defaultStreamId
             )
-            let wasPlaying = (streamPlayer.state == .playing)
-            streamPlayer.load(stream: newDefault, autoplay: wasPlaying)
+            let autoplay = isLaunchStreamProvisional ? playbackRequested : streamPlayer.state == .playing
+            streamPlayer.load(stream: newDefault, autoplay: autoplay)
+            if isLaunchStreamProvisional && !autoplay { streamPlayer.prefetch() }
         }
     }
 
@@ -110,10 +132,13 @@ final class StatusBarController: NSObject {
             panel.allStreams = StreamHealthMonitor.shared.available(in: catalog.streams)
             panel.currentStreamId = streamPlayer.currentStream.id
             panel.onSelectStream = { [weak self] stream in
-                self?.streamPlayer.load(stream: stream, autoplay: true)
+                guard let self else { return }
+                self.isLaunchStreamProvisional = false
+                self.streamPlayer.load(stream: stream, autoplay: true)
             }
             panel.onSelectRandom = { [weak self] in
                 guard let self else { return }
+                self.isLaunchStreamProvisional = false
                 let healthy = StreamHealthMonitor.shared.available(in: self.catalog.streams)
                 let pool = healthy.isEmpty ? self.catalog.streams : healthy
                 let stream = pool.randomElement() ?? self.catalog.streams[0]
@@ -171,7 +196,9 @@ final class StatusBarController: NSObject {
         if settingsWindowController == nil {
             let win = SettingsWindow(catalog: catalog, settings: .shared, player: streamPlayer)
             win.onPlayStream = { [weak self] stream in
-                self?.streamPlayer.load(stream: stream, autoplay: true)
+                guard let self else { return }
+                self.isLaunchStreamProvisional = false
+                self.streamPlayer.load(stream: stream, autoplay: true)
             }
             win.onSetDefaultStream = { _ in /* persisted by the window directly */ }
             settingsWindowController = win

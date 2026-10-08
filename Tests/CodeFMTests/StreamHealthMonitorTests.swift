@@ -37,7 +37,7 @@ final class StreamHealthMonitorTests: XCTestCase {
         // An ended broadcast keeps isLiveContent:true (YouTube's persistent
         // classification) but flips isLive to false. It must NOT read as live —
         // otherwise the stale/rotated pinned videoId looks healthy and the
-        // channel-live fallback in probeYouTube never runs. (CodeRabbit finding.)
+        // channel-live fallback in probeYouTube never runs.
         let html = #"{"playabilityStatus":{"status":"OK"},"videoDetails":{"isLive":false,"isLiveContent":true}}"#
         XCTAssertFalse(StreamHealthMonitor.htmlIndicatesLive(html))
     }
