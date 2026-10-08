@@ -133,7 +133,12 @@ final class YouTubeStreamSource: NSObject, StreamSource, WKNavigationDelegate, W
                     self.cancelBufferTimer()
                     self.teardownWebView()
                     self.shouldPlayWhenReady = self.isPlayRequested
-                    if self.isPlayRequested { self.startPlaybackTimer() }
+                    if self.isPlayRequested {
+                        self.startPlaybackTimer()
+                    } else {
+                        // A silent reload never reaches "playing", so keep the fallback available for the next play attempt.
+                        self.didTryChannelLiveFallback = false
+                    }
                     self.loadPlayerIfNeeded()
                 } else {
                     self.state = .offline
