@@ -71,5 +71,4 @@ final class RandomPickerTests: XCTestCase {
             in: catalog, currentStreamId: "a", unavailableIds: ["a", "b"], isProvisional: true
         ))
     }
-
 }

@@ -9,6 +9,7 @@ final class StreamPlayer {
     var onCurrentStreamChange: ((Stream) -> Void)?
 
     private(set) var currentStream: Stream
+    private(set) var isPlaybackRequested = false
     private var currentSource: StreamSource?
 
     var volume: Float = 1.0 {
@@ -34,19 +35,27 @@ final class StreamPlayer {
 
     func togglePlayback() {
         switch state {
-        case .stopped, .offline: currentSource?.play()
+        case .stopped, .offline:
+            isPlaybackRequested = true
+            currentSource?.play()
         case .loading: break
-        case .playing: currentSource?.stop()
+        case .playing:
+            isPlaybackRequested = false
+            currentSource?.stop()
         }
     }
 
-    func stop() { currentSource?.stop() }
+    func stop() {
+        isPlaybackRequested = false
+        currentSource?.stop()
+    }
 
     /// Switch to a new stream. Disposes the old source. If the player was playing,
     /// starts the new source playing immediately.
     func load(stream: Stream, autoplay: Bool? = nil) {
         let wasPlaying = (state == .playing || state == .loading)
         let shouldAutoplay = autoplay ?? wasPlaying
+        isPlaybackRequested = shouldAutoplay
 
         currentStream = stream
         rebuildSource(for: stream)
@@ -56,6 +65,7 @@ final class StreamPlayer {
     }
 
     private func rebuildSource(for stream: Stream) {
+        currentSource?.onStateChange = nil
         currentSource?.dispose()
         let source: StreamSource
         switch stream.type {
