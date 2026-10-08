@@ -78,8 +78,9 @@ final class StatusBarController: NSObject {
             isProvisional: isLaunchStreamProvisional
         ) else { return }
 
-        // Preserve the app's play request even if the source stopped or went offline.
-        let autoplay = streamPlayer.isPlaybackRequested
+        // Keep the app's play request through a failure (a failed direct-audio
+        // item also reports stopped), but not after the player paused itself.
+        let autoplay = streamPlayer.wantsPlayback
         streamPlayer.load(stream: replacement, autoplay: autoplay)
         if !autoplay {
             streamPlayer.prefetch()
