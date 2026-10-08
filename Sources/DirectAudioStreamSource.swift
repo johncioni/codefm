@@ -14,6 +14,7 @@ final class DirectAudioStreamSource: NSObject, StreamSource {
     private var statusObservation: NSKeyValueObservation?
     private var resolveTask: URLSessionDataTask?
     private var bufferTimer: Timer?
+    private var isDisposed = false
 
     var onStateChange: ((PlayerState) -> Void)?
 
@@ -52,6 +53,7 @@ final class DirectAudioStreamSource: NSObject, StreamSource {
     }
 
     func dispose() {
+        isDisposed = true
         resolveTask?.cancel()
         resolveTask = nil
         timeControlObservation?.invalidate()
@@ -80,8 +82,12 @@ final class DirectAudioStreamSource: NSObject, StreamSource {
             self.resolveTask = nil
 
             if let error {
+                if (error as? URLError)?.code == .cancelled { return }
                 Self.logger.warning("Playlist fetch failed: \(error.localizedDescription)")
-                DispatchQueue.main.async { self.state = .offline }
+                DispatchQueue.main.async { [weak self] in
+                    guard let self, !self.isDisposed else { return }
+                    self.state = .offline
+                }
                 return
             }
             guard
@@ -90,11 +96,17 @@ final class DirectAudioStreamSource: NSObject, StreamSource {
                 let resolved = PLSParser.firstStreamURL(in: body)
             else {
                 Self.logger.warning("Could not parse playlist from \(self.url)")
-                DispatchQueue.main.async { self.state = .offline }
+                DispatchQueue.main.async { [weak self] in
+                    guard let self, !self.isDisposed else { return }
+                    self.state = .offline
+                }
                 return
             }
 
-            DispatchQueue.main.async { self.startPlayback(with: resolved) }
+            DispatchQueue.main.async { [weak self] in
+                guard let self, !self.isDisposed else { return }
+                self.startPlayback(with: resolved)
+            }
         }
         self.resolveTask = task
         task.resume()
@@ -105,7 +117,7 @@ final class DirectAudioStreamSource: NSObject, StreamSource {
     private func startPlayback(with url: URL) {
         // Belt-and-suspenders: if stop() ran while the resolve completion was
         // already dispatched to main, don't construct a new AVPlayer.
-        guard state != .stopped else { return }
+        guard !isDisposed, state != .stopped else { return }
         let item = AVPlayerItem(url: url)
         let player = AVPlayer(playerItem: item)
         player.volume = Settings.clampedVolume(volume)
