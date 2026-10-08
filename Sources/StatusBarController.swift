@@ -102,6 +102,7 @@ final class StatusBarController: NSObject {
     func applyUpdatedCatalog(_ updated: StreamCatalog) {
         self.catalog = updated
         liquidGlassPanel?.allStreams = StreamHealthMonitor.shared.available(in: updated.streams)
+        settingsWindowController?.updateCatalog(updated)
         // If the current stream is gone after a remote refresh, swap to the resolved
         // default. Preserve a provisional stream's play request unless the player
         // paused itself; otherwise resume only if the previous stream was loading

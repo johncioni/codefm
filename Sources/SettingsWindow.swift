@@ -7,7 +7,7 @@ enum SettingsSection {
 }
 
 final class SettingsWindow: NSWindowController {
-    private let catalog: StreamCatalog
+    private var catalog: StreamCatalog
     private let settings: Settings
     private weak var player: StreamPlayer?
 
@@ -47,6 +47,15 @@ final class SettingsWindow: NSWindowController {
 
     func scroll(to section: SettingsSection) {
         // v1: window fits on screen — no-op. T15+ may anchor sections individually.
+    }
+
+    /// Show a refreshed catalog. The window is created once and reused, so
+    /// without this it keeps listing, playing and rechecking the catalog it
+    /// was opened with.
+    func updateCatalog(_ updated: StreamCatalog) {
+        catalog = updated
+        populateLibrary()
+        refreshDefaultStreamSummary()
     }
 
     private func buildUI() {
