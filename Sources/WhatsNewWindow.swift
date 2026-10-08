@@ -9,7 +9,15 @@ final class WhatsNewWindow: NSWindow {
     }
 
     private static let releases: [Release] = [
-        Release(version: "1.4.2", date: "10/8/26", isLatest: true, entries: [
+        Release(version: "1.4.3", date: "10/8/26", isLatest: true, entries: [
+            (tag: "FIXED", tagColor: .systemGreen, items: [
+                "A YouTube station is no longer marked offline, and hidden from the menu, while it is still recovering or after it has recovered.",
+                "When a YouTube broadcast ends, Code FM switches to the channel's new broadcast if there is one, instead of marking the station offline.",
+                "A YouTube station that isn't playing no longer goes offline when macOS ends its background web process.",
+                "Pressing play on an offline YouTube station checks the channel for a new broadcast again.",
+            ]),
+        ]),
+        Release(version: "1.4.2", date: "10/8/26", isLatest: false, entries: [
             (tag: "FIXED", tagColor: .systemGreen, items: [
                 "A stopped YouTube station no longer starts playing by itself when the app moves it to the channel's new live broadcast.",
             ]),

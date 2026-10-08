@@ -64,6 +64,14 @@ The app is ad-hoc signed and not notarized. On macOS 15 or later, open the app o
 
 ## Changelog
 
+### 1.4.3 — 2026-10-08
+
+**Fixed**
+- A YouTube station is no longer marked offline, and hidden from the menu, while it is still recovering or after it has recovered.
+- When a YouTube broadcast ends, Code FM switches to the channel's new broadcast if there is one, instead of marking the station offline.
+- A YouTube station that isn't playing no longer goes offline when macOS ends its background web process.
+- Pressing play on an offline YouTube station checks the channel for a new broadcast again.
+
 ### 1.4.2 — 2026-10-08
 
 **Fixed**
