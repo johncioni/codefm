@@ -2,9 +2,7 @@ name: ci
 
 # This repo originally had no build or test CI. Closes FM-7.
 #
-# SwiftLint is not run here or by any automated runner (Linear FM-8).
-# .swiftlint.yml is written for incremental adoption, so adding a whole-repo
-# lint job needs its own ticket.
+# No lint job, on purpose: the repo has no linter (FM-8, see CLAUDE.md).
 on:
   pull_request:
   push:
