@@ -48,6 +48,10 @@ swift test                  # unit tests (see caveat below)
   `~/.agents/sandbox/swift-sandboxed test`, and
   `~/.agents/sandbox/swift-sandboxed exec ./Scripts/build-app.sh`
   ("Gates in a worker's worktree" in `~/.agents/ORCHESTRATION.md` says why).
+- **No linter, on purpose.** There is no SwiftLint config or lint command:
+  CodeRabbit was the only thing that applied one, and when it was cancelled
+  John chose to drop lint rather than install a runner (FM-8). The gates are
+  build, test and the app build; a missing lint step is not a gap to report.
 
 ## Review loop
 
