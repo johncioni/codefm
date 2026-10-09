@@ -27,9 +27,11 @@
   // SwiftLint is a release download pinned by version and SHA-256 in ci.yml,
   // not an action, so the github-actions manager cannot see it. The
   // github-release-attachments datasource finds the release asset whose hash
-  // is the pinned one (portable_swiftlint.zip) and rewrites both lines in one
-  // PR, so a bump does not fail the lint job's checksum. The regex needs the
-  // two env lines adjacent, version first.
+  // is the pinned one (portable_swiftlint.zip) and puts that asset's hash from
+  // the new release in the same PR. If it cannot find the asset (say it was
+  // replaced upstream), it keeps the old hash and the PR's lint job fails its
+  // checksum; take the new hash from the release asset by hand. The regex
+  // needs the two env lines adjacent, version first.
   customManagers: [
     {
       customType: "regex",
