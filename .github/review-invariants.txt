@@ -10,6 +10,8 @@ Sources/LoginItemManager.swift
 Sources/StreamPlayer.swift
 Sources/YouTubeStreamSource.swift
 Scripts/build-app.sh
+.swiftlint.yml
+.swiftlint-baseline.json
 .github/*
 CLAUDE.md
 docs/agents-memory/*
