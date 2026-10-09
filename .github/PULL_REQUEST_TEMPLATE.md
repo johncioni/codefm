@@ -6,7 +6,8 @@
 
 ## Quality gate
 
-- [ ] `swift build`, `swift test` (needs full Xcode), and `./Scripts/build-app.sh` pass locally
+- [ ] `swift build`, `swift test` (needs full Xcode), `./Scripts/build-app.sh`, and
+      `swiftlint lint --strict --no-cache --baseline .swiftlint-baseline.json` pass locally
 
 ## Review evidence
 

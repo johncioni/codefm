@@ -36,6 +36,7 @@ Requires Xcode command line tools (`xcode-select --install`).
 swift build                 # compile the executable target
 ./Scripts/build-app.sh      # compile + assemble + ad-hoc sign → build/Code FM.app
 swift test                  # unit tests (see caveat below)
+swiftlint lint --strict --no-cache --baseline .swiftlint-baseline.json  # lint
 ```
 
 - `./Scripts/build-app.sh` produces the runnable bundle at `build/Code FM.app`.
@@ -48,24 +49,35 @@ swift test                  # unit tests (see caveat below)
   `~/.agents/sandbox/swift-sandboxed test`, and
   `~/.agents/sandbox/swift-sandboxed exec ./Scripts/build-app.sh`
   ("Gates in a worker's worktree" in `~/.agents/ORCHESTRATION.md` says why).
-- **No linter, on purpose.** There is no SwiftLint config or lint command:
-  CodeRabbit was the only thing that applied one, and when it was cancelled
-  John chose to drop lint rather than install a runner (FM-8). The gates are
-  build, test and the app build; a missing lint step is not a gap to report.
+- **Lint is SwiftLint, run with the command above everywhere: locally, in a
+  worker, and in CI's `lint` job** (FM-32, which reversed FM-8's "no
+  linter"). Install it with `brew install swiftlint`: it is a dev tool, so the
+  no-Homebrew rule, which covers app dependencies, does not apply. CI pins the
+  version in `.github/workflows/ci.yml`; keep a local install on that version.
+  Workers run the same command directly, with no wrapper: `--no-cache` is what
+  makes it work in the sandbox, which cannot write SwiftLint's default cache in
+  `~/Library/Caches`.
+- **`.swiftlint-baseline.json` holds only violations that predate the lint
+  job.** New code lints clean: fix a new violation, never add it to the
+  baseline. Fixing a baselined one is welcome; drop its entry in the same PR.
 
 ## Review loop
 
 Launch recipes, terminal hygiene, and worker supervision live in `~/.agents/ORCHESTRATION.md`; roles, models, effort, and the review loop in `~/.agents/MODELS.md`.
 
-**Required checks:** `ci`, `gitleaks`, `review-evidence`. Local gates before a
-PR: `swift build`, `swift test`, and `Scripts/build-app.sh` green.
+**Required checks:** `ci`, `lint`, `gitleaks`, `review-evidence`. Local gates
+before a PR: `swift build`, `swift test`, `Scripts/build-app.sh`, and the
+SwiftLint command green. Worker briefs give the lint command with the three
+`swift-sandboxed` gates, and reviewer briefs include its output with the test
+output.
 
 **Invariant files (ineligible for the docs/test/size skips):** `Package.swift` (system frameworks
 only — no SPM deps), `Resources/streams.json` (the catalog; the website syncs
 from it), `Resources/Info.plist`, `Resources/CodeFM.entitlements`,
 `Sources/LoginItemManager.swift` (ServiceManagement / start-at-login),
 `Sources/StreamPlayer.swift` + `Sources/YouTubeStreamSource.swift` (off-screen
-WebKit player), `Scripts/build-app.sh` (ad-hoc signing),
+WebKit player), `Scripts/build-app.sh` (ad-hoc signing), `.swiftlint.yml` +
+`.swiftlint-baseline.json` (a small edit could silence the lint gate),
 `docs/agents-memory/*` (imported into every session).
 
 **Branch protection is strict:** `main` requires the PR branch to be up to
