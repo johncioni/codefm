@@ -42,7 +42,7 @@ jobs:
       - name: Build
         run: swift build
 
-      # 21 tests across 5 files in Tests/CodeFMTests.
+      # The XCTest suite in Tests/CodeFMTests.
       - name: Test
         run: swift test
 
@@ -54,9 +54,9 @@ jobs:
     env:
       # Pinned and hash-checked rather than the runner's preinstalled
       # swiftlint, which changes with the image: a new SwiftLint can add or
-      # change rule behavior under a required check. Renovate does not track
-      # this pin (it only manages github-actions), so bump both lines by hand.
-      # The hash is the release's portable_swiftlint.zip.
+      # change rule behavior under a required check. Renovate bumps both lines
+      # together (customManagers in renovate.json5), recomputing the hash of
+      # the release's portable_swiftlint.zip; keep them adjacent, version first.
       SWIFTLINT_VERSION: 0.65.1
       SWIFTLINT_SHA256: c1e429b0599cf1b516f369a2d9ec04eaf0e436f3c12b637df8851fa52ff694d0
     steps:

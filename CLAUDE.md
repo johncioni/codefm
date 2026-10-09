@@ -55,8 +55,8 @@ swiftlint lint --strict --no-cache --baseline .swiftlint-baseline.json  # lint
   no-Homebrew rule, which covers app dependencies, does not apply. CI pins the
   version in `.github/workflows/ci.yml`; keep a local install on that version.
   Workers run the same command directly, with no wrapper: `--no-cache` is what
-  makes it work in the sandbox, which cannot write SwiftLint's default cache in
-  `~/Library/Caches`.
+  makes it work in both worker sandboxes (Codex and Claude role), which cannot
+  write SwiftLint's default cache in `~/Library/Caches`.
 - **`.swiftlint-baseline.json` holds only violations that predate the lint
   job.** New code lints clean: fix a new violation, never add it to the
   baseline. Fixing a baselined one is welcome; drop its entry in the same PR.
@@ -78,6 +78,7 @@ from it), `Resources/Info.plist`, `Resources/CodeFM.entitlements`,
 `Sources/StreamPlayer.swift` + `Sources/YouTubeStreamSource.swift` (off-screen
 WebKit player), `Scripts/build-app.sh` (ad-hoc signing), `.swiftlint.yml` +
 `.swiftlint-baseline.json` (a small edit could silence the lint gate),
+`.github/*` and `CLAUDE.md` (always invariant, per `~/.agents/MODELS.md`),
 `docs/agents-memory/*` (imported into every session).
 
 **Branch protection is strict:** `main` requires the PR branch to be up to

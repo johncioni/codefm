@@ -8,7 +8,9 @@
   // on the executable target in the same package), so there is nothing for the
   // swift manager to update. The real job is the GitHub Actions in
   // .github/workflows -- which matters precisely because those are SHA-pinned,
-  // and a pinned digest is exactly the thing that goes stale silently.
+  // and a pinned digest is exactly the thing that goes stale silently. The
+  // same goes for the SwiftLint release that ci.yml downloads and hash-checks
+  // (customManagers below).
   extends: [
     "config:recommended",
     ":semanticCommitTypeAll(chore)",
@@ -20,7 +22,25 @@
   // SPM deps the moment one is added -- outside this file's stated scope and
   // outside the pinning discipline. Revisit deliberately if CodeFM takes a
   // dependency.
-  enabledManagers: ["github-actions"],
+  enabledManagers: ["github-actions", "custom.regex"],
+
+  // SwiftLint is a release download pinned by version and SHA-256 in ci.yml,
+  // not an action, so the github-actions manager cannot see it. The
+  // github-release-attachments datasource finds the release asset whose hash
+  // is the pinned one (portable_swiftlint.zip) and rewrites both lines in one
+  // PR, so a bump does not fail the lint job's checksum. The regex needs the
+  // two env lines adjacent, version first.
+  customManagers: [
+    {
+      customType: "regex",
+      managerFilePatterns: ["/^\\.github/workflows/ci\\.yml$/"],
+      matchStrings: [
+        "SWIFTLINT_VERSION: (?<currentValue>\\S+)\\s+SWIFTLINT_SHA256: (?<currentDigest>[0-9a-f]{64})",
+      ],
+      depNameTemplate: "realm/SwiftLint",
+      datasourceTemplate: "github-release-attachments",
+    },
+  ],
 
   // Supply-chain defence, mirroring the local ~/.npmrc policy: never open a PR
   // for a release younger than a week, so a compromised publish has time to be
