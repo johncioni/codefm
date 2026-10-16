@@ -50,8 +50,8 @@ swiftlint lint --strict --no-cache --baseline .swiftlint-baseline.json  # lint
   `~/.agents/sandbox/swift-sandboxed exec ./Scripts/build-app.sh`
   ("Gates in a worker's worktree" in `~/.agents/ORCHESTRATION.md` says why).
 - **Lint is SwiftLint, run with the command above everywhere: locally, in a
-  worker, and in CI's `lint` job** (FM-32, which reversed FM-8's "no
-  linter"). Install it with `brew install swiftlint`: it is a dev tool, so the
+  worker, and in CI's `lint` job.** Install it with `brew install swiftlint`:
+  it is a dev tool, so the
   no-Homebrew rule, which covers app dependencies, does not apply. CI pins the
   version in `.github/workflows/ci.yml`; keep a local install on that version.
   Workers run the same command directly, with no wrapper: `--no-cache` is what
@@ -85,7 +85,7 @@ WebKit player), `Scripts/build-app.sh` (ad-hoc signing), `.swiftlint.yml` +
 date. On `mergeStateStatus: BEHIND`, run `gh pr update-branch <n>`, wait for
 the checks to go green again, then merge; if more commits are needed after
 the update, `git pull` in the worktree first — never `--admin`, never a
-force-push (decision 2026-08-30).
+force-push.
 
 ## Orca
 
