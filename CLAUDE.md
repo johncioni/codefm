@@ -78,8 +78,10 @@ from it), `Resources/Info.plist`, `Resources/CodeFM.entitlements`,
 `Sources/StreamPlayer.swift` + `Sources/YouTubeStreamSource.swift` (off-screen
 WebKit player), `Scripts/build-app.sh` (ad-hoc signing), `.swiftlint.yml` +
 `.swiftlint-baseline.json` (a small edit could silence the lint gate),
-`.github/*` and `CLAUDE.md` (always invariant, per `~/.agents/MODELS.md`),
-`docs/agents-memory/*` (imported into every session).
+`.github/*`, `CLAUDE.md` and the agent and tool config MODELS.md's "One
+round" names, at any depth (always invariant, per `~/.agents/MODELS.md`),
+`Scripts/orca-setup.sh` (Orca's setup hook runs it as John on every new
+worktree), `docs/agents-memory/*` (imported into every session).
 
 **Branch protection is strict:** `main` requires the PR branch to be up to
 date. On `mergeStateStatus: BEHIND`, run `gh pr update-branch <n>`, wait for
