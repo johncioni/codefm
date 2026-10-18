@@ -72,7 +72,8 @@ SwiftLint command green. Worker briefs give the lint command with the three
 output.
 
 **Invariant files (ineligible for the docs/test/size skips):** `Package.swift` (system frameworks
-only — no SPM deps), `Resources/streams.json` (the catalog; the website syncs
+only — no SPM deps) and any version-specific `Package@*.swift`, which SwiftPM builds from
+instead when the toolchain matches, `Resources/streams.json` (the catalog; the website syncs
 from it), `Resources/Info.plist`, `Resources/CodeFM.entitlements`,
 `Sources/LoginItemManager.swift` (ServiceManagement / start-at-login),
 `Sources/StreamPlayer.swift` + `Sources/YouTubeStreamSource.swift` (off-screen

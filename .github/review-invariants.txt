@@ -3,6 +3,8 @@
 # migrations, outbound mail, or payments belongs here. Bash glob; '*' spans '/'.
 # Keep in sync with CLAUDE.md "Review loop".
 Package.swift
+# SwiftPM builds from a version-specific manifest instead when the toolchain matches.
+Package@*.swift
 Resources/streams.json
 Resources/Info.plist
 Resources/CodeFM.entitlements
