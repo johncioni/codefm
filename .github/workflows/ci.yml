@@ -22,7 +22,7 @@ jobs:
     # toolchain under a required check, and when the image is retired an
     # explicit label fails loudly instead of drifting. Matches
     # rawdog-printworks/tests.yml.
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 20
     steps:
       # SHA-pinned: a retargeted tag could run different action code inside the
@@ -49,7 +49,7 @@ jobs:
   lint:
     # macos-15 like the ci job: SwiftLint loads SourceKit from the runner's
     # Xcode, as it does on a dev Mac, so results match a local run.
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 10
     env:
       # Pinned and hash-checked rather than the runner's preinstalled
