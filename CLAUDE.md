@@ -7,8 +7,8 @@ source of truth. Keep it that way.
 ## Project memory
 
 `docs/agents-memory/` is the durable, cross-agent memory for this repo
-(rules: `~/.agents/MODELS.md`, "Project memory"). Read both files before the
-first edit. Only the orchestrator writes there, in reviewed memory PRs.
+(rules: `~/.agents/AGENTS.md`, "Project memory"). Read both files before the
+first edit. Add an entry in the same PR as the work that taught it.
 
 @docs/agents-memory/decisions.md
 @docs/agents-memory/ruled-out.md
@@ -47,31 +47,30 @@ swiftlint lint --strict --no-cache --baseline .swiftlint-baseline.json  # lint
   fails inside the worker sandbox, so use
   `~/.agents/sandbox/swift-sandboxed build`,
   `~/.agents/sandbox/swift-sandboxed test`, and
-  `~/.agents/sandbox/swift-sandboxed exec ./Scripts/build-app.sh`
-  ("Gates in a worker's worktree" in `~/.agents/ORCHESTRATION.md` says why).
+  `~/.agents/sandbox/swift-sandboxed exec ./Scripts/build-app.sh`.
 - **Lint is SwiftLint, run with the command above everywhere: locally, in a
   worker, and in CI's `lint` job.** Install it with `brew install swiftlint`:
   it is a dev tool, so the
   no-Homebrew rule, which covers app dependencies, does not apply. CI pins the
   version in `.github/workflows/ci.yml`; keep a local install on that version.
   Workers run the same command directly, with no wrapper: `--no-cache` is what
-  makes it work in both worker sandboxes (Codex and Claude role), which cannot
-  write SwiftLint's default cache in `~/Library/Caches`.
+  makes it work in the worker sandbox, which cannot write SwiftLint's default
+  cache in `~/Library/Caches`.
 - **`.swiftlint-baseline.json` holds only violations that predate the lint
   job.** New code lints clean: fix a new violation, never add it to the
   baseline. Fixing a baselined one is welcome; drop its entry in the same PR.
 
-## Review loop
+## Review and merging
 
-Launch recipes, terminal hygiene, and worker supervision live in `~/.agents/ORCHESTRATION.md`; roles, models, effort, and the review loop in `~/.agents/MODELS.md`.
+Roles, models and the review rule are in `~/.agents/AGENTS.md`. How a coordinator runs work through Orca is in the coordinator skill (`~/.agents/skills/coordinator/SKILL.md`).
 
-**Required checks:** `ci`, `lint`, `gitleaks`, `review-evidence`. Local gates
+**Required checks:** `ci`, `lint`, `gitleaks`. Local gates
 before a PR: `swift build`, `swift test`, `Scripts/build-app.sh`, and the
 SwiftLint command green. Worker briefs give the lint command with the three
 `swift-sandboxed` gates, and reviewer briefs include its output with the test
 output.
 
-**Invariant files (ineligible for the docs/test/size skips):** `Package.swift` (system frameworks
+**Always reviewed (no docs-only, test-only or size skip):** `Package.swift` (system frameworks
 only — no SPM deps) and any version-specific `Package@*.swift`, which SwiftPM builds from
 instead when the toolchain matches, `Resources/streams.json` (the catalog; the website syncs
 from it), `Resources/Info.plist`, `Resources/CodeFM.entitlements`,
@@ -79,18 +78,13 @@ from it), `Resources/Info.plist`, `Resources/CodeFM.entitlements`,
 `Sources/StreamPlayer.swift` + `Sources/YouTubeStreamSource.swift` (off-screen
 WebKit player), `Scripts/build-app.sh` (ad-hoc signing), `.swiftlint.yml` +
 `.swiftlint-baseline.json` (a small edit could silence the lint gate),
-`.github/*`, `CLAUDE.md` and the agent and tool config MODELS.md's "One
-round" names, at any depth (always invariant, per `~/.agents/MODELS.md`),
+`.github/*`, `CLAUDE.md` and other agent and tool config,
 `Scripts/orca-setup.sh` (Orca's setup hook runs it as John on every new
 worktree), `docs/agents-memory/*` (imported into every session).
 
 **Branch protection is strict:** `main` requires the PR branch to be up to
-date. `~/.agents/merge-reviewed-pr.sh` updates a `BEHIND` branch and waits for
-the checks at merge time. A branch that still needs commits takes main through
-`start-worker-merge`, not `gh pr update-branch` (`~/.agents/RUNBOOK.md`, "Merge
-conflicts"), since a worker's worktree takes no bare git
-(`~/.agents/ORCHESTRATION.md`, "Dispatch rules"). Never `--admin`, never a
-force-push.
+date. Bring a `BEHIND` branch up to date with `gh pr update-branch`, then wait
+for the checks again. Never `--admin`, never a force-push.
 
 ## Orca
 
